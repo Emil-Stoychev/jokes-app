@@ -21,9 +21,6 @@ export default {
 
 <template>
   <div class="about-container">
-    <div>
-      
-    </div>
     <h1>About <span class="company-name"><VueWriter :array="arr" :eraseSpeed="50" :typeSpeed="70" /></span> 😄</h1>
     <p>Welcome to <span class="company-name">FunnyJokes</span> 😂, the laughter hub created by a one-person comedy
       maestro.
@@ -59,6 +56,7 @@ export default {
 
 <style scoped>
 .about-container {
+  user-select: none;
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
