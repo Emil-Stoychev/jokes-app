@@ -25,6 +25,7 @@ export default {
 
 <style scoped>
 nav {
+    user-select: none;
     display: flex;
     justify-content: space-between;
     padding: 0 2rem;
