@@ -11,9 +11,11 @@ export default {
       dataInputs: {
         username: '',
         password: '',
-        rePassword: ''
+        rePassword: '',
+        profileEmojie: 'profile.gif'
       },
       emojies: ['default.gif', 'thinking.gif', 'hide-pass.png', 'show-pass.gif', 'wrong.gif', 'ready.gif', 'loading.gif'],
+      profileEmojies: ['profile.gif', 'profile1.gif', 'profile2.gif', 'profile3.gif', 'profile4.gif', 'profile5.gif', 'profile6.gif', 'profile7.gif'],
       currentEmojie: null,
       showPass: false,
       isFocusInput: false,
@@ -81,7 +83,18 @@ export default {
       } else {
         this.currentEmojie = this.emojies[4]
       }
-    }
+    },
+    prevEmoji() {
+      const currentIndex = this.profileEmojies.indexOf(this.dataInputs.profileEmojie);
+      const newIndex = (currentIndex - 1 + this.profileEmojies.length) % this.profileEmojies.length;
+      this.dataInputs.profileEmojie = this.profileEmojies[newIndex];
+    },
+
+    nextEmoji() {
+      const currentIndex = this.profileEmojies.indexOf(this.dataInputs.profileEmojie);
+      const newIndex = (currentIndex + 1) % this.profileEmojies.length;
+      this.dataInputs.profileEmojie = this.profileEmojies[newIndex];
+    },
   }
 };
 </script>
@@ -122,6 +135,15 @@ export default {
       <div class="showPassCont">
         <input id="showPass" type="checkbox" @click="showPassFn">
         <label for="showPass">Show password</label>
+      </div>
+
+      <div class="input-container">
+        <label>Profile Emojie</label>
+        <div class="emoji-slider">
+          <button type="button" @click="prevEmoji">&lt;</button>
+          <img class="emojiePicker" :src="`/images/${this.dataInputs.profileEmojie}`" alt="Emoji" />
+          <button type="button" @click="nextEmoji">&gt;</button>
+        </div>
       </div>
 
       <button>Submit</button>
@@ -183,7 +205,7 @@ label {
   margin-bottom: 1rem;
 }
 
-.showPassCont > label {
+.showPassCont>label {
   margin-bottom: 0;
 }
 
@@ -200,6 +222,24 @@ button {
 
 button:hover {
   background-color: #45a049;
+}
+
+.emoji-slider {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.emoji-slider button {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.emojiePicker {
+  width: 60px;
+  height: 60px;
 }
 
 @media screen and (max-width: 600px) {
