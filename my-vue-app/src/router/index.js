@@ -5,6 +5,7 @@ import Create from '../components/create/Create.vue'
 import Profile from '../components/profile/Profile.vue'
 import About from '../components/about/About.vue'
 import Login from '../components/login/Login.vue'
+import Register from '../components/register/Register.vue'
 
 const routes = [
     { path: '/', component: Home },
@@ -12,6 +13,7 @@ const routes = [
     { path: '/profile', component: Profile },
     { path: '/about', component: About },
     { path: '/login', component: Login },
+    { path: '/register', component: Register },
 ]
 
 const router = createRouter({
