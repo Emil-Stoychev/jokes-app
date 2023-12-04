@@ -138,7 +138,7 @@ export default {
       </div>
 
       <div class="input-container">
-        <label>Profile Emojie</label>
+        <label>Profile Avatar</label>
         <div class="emoji-slider">
           <button type="button" @click="prevEmoji">&lt;</button>
           <img class="emojiePicker" :src="`/images/${this.dataInputs.profileEmojie}`" alt="Emoji" />

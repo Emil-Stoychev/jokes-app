@@ -24,6 +24,7 @@ export default {
 </template>
 
 <style scoped>
+/* FOOTER */
 footer {
     user-select: none;
     display: flex;
@@ -35,7 +36,6 @@ footer {
     border-top: var(--border-main-color);
     width: 100%;
     max-width: var(--max-width);
-    margin: 0 auto;
 }
 
 p {

@@ -55,6 +55,7 @@ export default {
 </template>
 
 <style scoped>
+/* ABOUT */
 .about-container {
   user-select: none;
   max-width: 800px;
