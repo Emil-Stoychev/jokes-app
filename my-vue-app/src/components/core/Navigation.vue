@@ -8,22 +8,51 @@ export default {
                 { value: '/profile', name: 'Profile', selected: false },
                 { value: '/about', name: 'About', selected: false },
                 { value: '/login', name: 'Login', selected: false },
-            ]
+            ],
+            emojies: ['hiding-left.gif', 'hiding-right.gif'],
+            leftPosition: `${Math.floor(Math.random() * (48 - 2 + 1) + 2)}rem`,
+            rightPosition: `${Math.floor(Math.random() * (48 - 2 + 1) + 2)}rem`,
+            isChanged: false
         }
     },
+    methods: {
+        hideAndChangePos() {
+            this.isChanged = !this.isChanged
+            this.leftPosition = `${Math.floor(Math.random() * (48 - 2 + 1) + 2)}rem`
+            this.rightPosition = `${Math.floor(Math.random() * (48 - 2 + 1) + 2)}rem`
+        }
+    }
 };
 </script>
 
 <template>
+    <img @click="hideAndChangePos" v-if="isChanged" class="hiding-left" :style="{ bottom: leftPosition }" :src="`/images/${emojies[0]}`" />
+    <img @click="hideAndChangePos" v-else class="hiding-right" :style="{ bottom: rightPosition }" :src="`/images/${emojies[1]}`" />
     <nav>
         <img src="https://i.pinimg.com/originals/03/3f/59/033f59d49fcf7135adb4e0424eea109b.png" />
         <ul>
-            <router-link v-for="el of this.navLinks" :to="el.value" :key="el.value" :class="{ 'selected': this.$route.path === el.value }">{{ el.name }}</router-link>
+            <router-link v-for="el of this.navLinks" :to="el.value" :key="el.value"
+                :class="{ 'selected': this.$route.path === el.value }">{{ el.name }}</router-link>
         </ul>
     </nav>
 </template>
 
 <style scoped>
+/* ABSOLUTE EMOJIES */
+
+.hiding-left {
+    position: fixed;
+    left: -3rem;
+    z-index: 1;
+}
+
+.hiding-right {
+    position: fixed;
+    right: -3rem;
+    z-index: 1;
+}
+
+/* NAV */
 nav {
     user-select: none;
     display: flex;
@@ -54,7 +83,7 @@ ul {
     flex-wrap: wrap;
 }
 
-ul > a {
+ul>a {
     cursor: pointer;
     padding: 0.5rem;
     text-decoration: none;
@@ -63,7 +92,7 @@ ul > a {
     overflow: hidden;
 }
 
-ul > a::after {
+ul>a::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -74,7 +103,7 @@ ul > a::after {
     transition: width 0.5s ease;
 }
 
-ul > a.selected::after {
+ul>a.selected::after {
     width: 100%;
 }
 
