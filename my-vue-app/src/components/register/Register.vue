@@ -246,6 +246,7 @@ button:hover {
   .form {
     margin: 1rem auto;
     padding: 15px;
+    max-width: 95%;
   }
 
   h2 {

@@ -173,7 +173,7 @@ label {
   margin-bottom: 1rem;
 }
 
-.showPassCont > label {
+.showPassCont>label {
   margin-bottom: 0;
 }
 
@@ -196,6 +196,7 @@ button:hover {
   .form {
     margin: 1rem auto;
     padding: 15px;
+    max-width: 95%;
   }
 
   h2 {
