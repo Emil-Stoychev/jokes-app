@@ -69,7 +69,7 @@ export default {
 <template>
   <div>
     <form class="form" @submit.prevent="handleSubmit">
-      <h2>Create</h2>
+      <h2>Edit</h2>
 
       <img class="emojie" :src="`/images/${this.currentEmojie}`" alt="Emoji" />
 
@@ -128,7 +128,7 @@ export default {
         </div>
       </div>
 
-      <button>Create</button>
+      <button>Edit</button>
     </form>
   </div>
 </template>
