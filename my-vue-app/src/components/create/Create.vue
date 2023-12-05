@@ -1,10 +1,12 @@
 <script>
+import useJokeStore from '../../store/jokeStore.js'
 import { useVuelidate } from '@vuelidate/core'
 import { required, minLength } from '@vuelidate/validators'
 
 export default {
   setup() {
-    return { v$: useVuelidate() }
+    const jokeStore = useJokeStore()
+    return { jokeStore, v$: useVuelidate() }
   },
   data() {
     return {
@@ -45,11 +47,19 @@ export default {
       this.isLoading = true
       this.currentEmojie = this.emojies[6];
       const validated = await this.v$.$validate()
-      this.isLoading = false
 
       if (validated) {
         this.currentEmojie = this.emojies[5]
-        console.log(this.dataInputs);
+        const createdJoke = await this.jokeStore.createNewJoke(this.dataInputs)
+
+        this.isLoading = false
+        if (createdJoke.message != undefined) {
+          this.currentEmojie = this.emojies[4]
+          console.log(createdJoke);
+        } else {
+          this.currentEmojie = this.emojies[5]
+          this.$router.push('/')
+        }
       } else {
         this.currentEmojie = this.emojies[4]
       }
@@ -75,8 +85,9 @@ export default {
 
       <div class="input-container">
         <label for="text">Text</label>
-        <textarea type="text" id="text" class="longText" :style="{ color: dataInputs.textColor, backgroundColor: dataInputs.bgColor, fontSize: `${dataInputs.size}rem`, textAlign: dataInputs.textAlign }" v-model.trim="dataInputs.text" @focus="handleFocus"
-          @blur="handleFocus" />
+        <textarea type="text" id="text" class="longText"
+          :style="{ color: dataInputs.textColor, backgroundColor: dataInputs.bgColor, fontSize: `${dataInputs.size}rem`, textAlign: dataInputs.textAlign }"
+          v-model.trim="dataInputs.text" @focus="handleFocus" @blur="handleFocus" />
         <div class="input-errors" v-for="error of v$.dataInputs.text.$errors" :key="error.$uid">
           <div class="error-msg">{{ error.$message }}</div>
         </div>
@@ -84,18 +95,20 @@ export default {
 
       <div class="input-container">
         <label for="textColor">Text Color</label>
-        <input type="color" id="textColor" class="colorPicker" v-model.trim="dataInputs.textColor" @focus="handleFocus" @blur="handleFocus" />
+        <input type="color" id="textColor" class="colorPicker" v-model.trim="dataInputs.textColor" @focus="handleFocus"
+          @blur="handleFocus" />
       </div>
 
       <div class="input-container">
         <label for="bgColor">Background Color</label>
-        <input type="color" id="bgColor" class="colorPicker" v-model.trim="dataInputs.bgColor" @focus="handleFocus" @blur="handleFocus" />
+        <input type="color" id="bgColor" class="colorPicker" v-model.trim="dataInputs.bgColor" @focus="handleFocus"
+          @blur="handleFocus" />
       </div>
 
       <div class="input-container">
         <label>Size</label>
         <div class="radioBox">
-          <div >
+          <div>
             <input type="radio" id="size1" value="1" v-model.trim="dataInputs.size">
             <label for="size1">1</label>
           </div>
@@ -113,7 +126,7 @@ export default {
       <div class="input-container">
         <label>Text Position</label>
         <div class="radioBox">
-          <div >
+          <div>
             <input type="radio" id="pos1" value="start" v-model.trim="dataInputs.textAlign">
             <label for="pos1">Left</label>
           </div>

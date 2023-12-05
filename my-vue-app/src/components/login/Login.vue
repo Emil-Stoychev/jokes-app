@@ -2,10 +2,13 @@
 import { RouterLink } from 'vue-router';
 import { useVuelidate } from '@vuelidate/core'
 import { required, minLength, maxLength } from '@vuelidate/validators'
+import { login } from '../../services/authService';
+import useAuthStore from '../../store/authStore';
 
 export default {
   setup() {
-    return { v$: useVuelidate() }
+    const authStore = useAuthStore()
+    return { authStore, v$: useVuelidate() };
   },
   data() {
     return {
@@ -72,13 +75,20 @@ export default {
       this.isLoading = true
       this.currentEmojie = this.emojies[6];
       const validated = await this.v$.$validate()
-      this.isLoading = false
 
       if (validated) {
         this.currentEmojie = this.emojies[5]
-        console.log(this.dataInputs);
+        let loggedUser = await this.authStore.loginUser(this.dataInputs)
+
+        this.isLoading = false
+        if (loggedUser.message != undefined) {
+          this.currentEmojie = this.emojies[4];
+        } else {
+          this.$router.push("/profile");
+        }
       } else {
         this.currentEmojie = this.emojies[4]
+        this.isLoading = false
       }
     }
   }
@@ -94,7 +104,8 @@ export default {
 
       <div class="input-container">
         <label for="username">Username</label>
-        <input type="text" id="username" v-model.trim="dataInputs.username" @focus="handleFocus" @blur="handleFocus" />
+        <input :disabled="this.isLoading" type="text" id="username" v-model.trim="dataInputs.username"
+          @focus="handleFocus" @blur="handleFocus" />
         <div class="input-errors" v-for="error of v$.dataInputs.username.$errors" :key="error.$uid">
           <div class="error-msg">{{ error.$message }}</div>
         </div>
@@ -102,21 +113,21 @@ export default {
 
       <div class="input-container">
         <label for="password">Password</label>
-        <input :type="showPass ? 'text' : 'password'" id="password" v-model.trim="dataInputs.password"
-          @focus="handleFocusPass" @blur="handleFocusPass" />
+        <input :disabled="this.isLoading" :type="showPass ? 'text' : 'password'" id="password"
+          v-model.trim="dataInputs.password" @focus="handleFocusPass" @blur="handleFocusPass" />
         <div class="input-errors" v-for="error of v$.dataInputs.password.$errors" :key="error.$uid">
           <div class="error-msg">{{ error.$message }}</div>
         </div>
       </div>
 
       <div class="showPassCont">
-        <input id="showPass" type="checkbox" @click="showPassFn">
+        <input :disabled="this.isLoading" id="showPass" type="checkbox" @click="showPassFn">
         <label for="showPass">Show password</label>
       </div>
 
-      <button>Submit</button>
+      <button :disabled="this.isLoading">Submit</button>
 
-      <RouterLink to="/register">You don't have an account? Click here</RouterLink>
+      <RouterLink to="/register" :disabled="this.isLoading">You don't have an account? Click here</RouterLink>
     </form>
   </div>
 </template>

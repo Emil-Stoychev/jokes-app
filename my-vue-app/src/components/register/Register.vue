@@ -1,10 +1,12 @@
 <script>
 import { useVuelidate } from '@vuelidate/core'
+import useAuthStore from '../../store/authStore';
 import { required, minLength, maxLength, sameAs } from '@vuelidate/validators'
 
 export default {
   setup() {
-    return { v$: useVuelidate() }
+    const authStore = useAuthStore()
+    return { authStore, v$: useVuelidate() }
   },
   data() {
     return {
@@ -12,7 +14,7 @@ export default {
         username: '',
         password: '',
         rePassword: '',
-        profileEmojie: 'profile.gif'
+        avatar: 'profile.gif'
       },
       emojies: ['default.gif', 'thinking.gif', 'hide-pass.png', 'show-pass.gif', 'wrong.gif', 'ready.gif', 'loading.gif'],
       profileEmojies: ['profile.gif', 'profile1.gif', 'profile2.gif', 'profile3.gif', 'profile4.gif', 'profile5.gif', 'profile6.gif', 'profile7.gif'],
@@ -75,25 +77,32 @@ export default {
       this.isLoading = true
       this.currentEmojie = this.emojies[6];
       const validated = await this.v$.$validate()
-      this.isLoading = false
 
       if (validated) {
         this.currentEmojie = this.emojies[5]
-        console.log(this.dataInputs);
+        let registeredUser = await this.authStore.registerUser(this.dataInputs)
+
+        this.isLoading = false
+        if (registeredUser.message != undefined) {
+          this.currentEmojie = this.emojies[4]
+        } else {
+          this.$router.push("/login");
+        }
       } else {
         this.currentEmojie = this.emojies[4]
+        this.isLoading = false
       }
     },
     prevEmoji() {
-      const currentIndex = this.profileEmojies.indexOf(this.dataInputs.profileEmojie);
+      const currentIndex = this.profileEmojies.indexOf(this.dataInputs.avatar);
       const newIndex = (currentIndex - 1 + this.profileEmojies.length) % this.profileEmojies.length;
-      this.dataInputs.profileEmojie = this.profileEmojies[newIndex];
+      this.dataInputs.avatar = this.profileEmojies[newIndex];
     },
 
     nextEmoji() {
-      const currentIndex = this.profileEmojies.indexOf(this.dataInputs.profileEmojie);
+      const currentIndex = this.profileEmojies.indexOf(this.dataInputs.avatar);
       const newIndex = (currentIndex + 1) % this.profileEmojies.length;
-      this.dataInputs.profileEmojie = this.profileEmojies[newIndex];
+      this.dataInputs.avatar = this.profileEmojies[newIndex];
     },
   }
 };
@@ -108,7 +117,8 @@ export default {
 
       <div class="input-container">
         <label for="username">Username</label>
-        <input type="text" id="username" v-model.trim="dataInputs.username" @focus="handleFocus" @blur="handleFocus" />
+        <input :disabled="this.isLoading" type="text" id="username" v-model.trim="dataInputs.username"
+          @focus="handleFocus" @blur="handleFocus" />
         <div class="input-errors" v-for="error of v$.dataInputs.username.$errors" :key="error.$uid">
           <div class="error-msg">{{ error.$message }}</div>
         </div>
@@ -116,8 +126,8 @@ export default {
 
       <div class="input-container">
         <label for="password">Password</label>
-        <input :type="showPass ? 'text' : 'password'" id="password" v-model.trim="dataInputs.password"
-          @focus="handleFocusPass" @blur="handleFocusPass" />
+        <input :disabled="this.isLoading" :type="showPass ? 'text' : 'password'" id="password"
+          v-model.trim="dataInputs.password" @focus="handleFocusPass" @blur="handleFocusPass" />
         <div class="input-errors" v-for="error of v$.dataInputs.password.$errors" :key="error.$uid">
           <div class="error-msg">{{ error.$message }}</div>
         </div>
@@ -125,30 +135,30 @@ export default {
 
       <div class="input-container">
         <label for="rePassword">RePassword</label>
-        <input :type="showPass ? 'text' : 'password'" id="rePassword" v-model.trim="dataInputs.rePassword"
-          @focus="handleFocusPass" @blur="handleFocusPass" />
+        <input :disabled="this.isLoading" :type="showPass ? 'text' : 'password'" id="rePassword"
+          v-model.trim="dataInputs.rePassword" @focus="handleFocusPass" @blur="handleFocusPass" />
         <div class="input-errors" v-for="error of v$.dataInputs.rePassword.$errors" :key="error.$uid">
           <div class="error-msg">{{ error.$message }}</div>
         </div>
       </div>
 
       <div class="showPassCont">
-        <input id="showPass" type="checkbox" @click="showPassFn">
+        <input :disabled="this.isLoading" id="showPass" type="checkbox" @click="showPassFn">
         <label for="showPass">Show password</label>
       </div>
 
       <div class="input-container">
         <label>Profile Avatar</label>
         <div class="emoji-slider">
-          <button type="button" @click="prevEmoji">&lt;</button>
-          <img class="emojiePicker" :src="`/images/${this.dataInputs.profileEmojie}`" alt="Emoji" />
-          <button type="button" @click="nextEmoji">&gt;</button>
+          <button :disabled="this.isLoading" type="button" @click="prevEmoji">&lt;</button>
+          <img class="emojiePicker" :src="`/images/${this.dataInputs.avatar}`" alt="Emoji" />
+          <button :disabled="this.isLoading" type="button" @click="nextEmoji">&gt;</button>
         </div>
       </div>
 
-      <button>Submit</button>
+      <button :disabled="this.isLoading">Submit</button>
 
-      <RouterLink to='/login'>You already have an account? Click here</RouterLink>
+      <RouterLink to='/login' :disabled="this.isLoading">You already have an account? Click here</RouterLink>
     </form>
   </div>
 </template>
