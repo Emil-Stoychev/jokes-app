@@ -87,7 +87,10 @@ hr {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin: 0 auto;
+  background-color: var(--bg-color-sub);
+  border: var(--border-main-color);
+  margin: 1rem;
+  border-radius: 1rem;
 }
 
 
@@ -98,11 +101,12 @@ hr {
   align-items: center;
   gap: 4rem;
   padding: 1rem;
-  background-color: var(--bg-color-sub);
+  background-color: var(--bg-color);
   width: 450px;
   border-radius: 1rem;
   margin: 3rem auto 0 auto;
   border: var(--border-main-color);
+  box-shadow: 0px 0px 10px green;
 }
 
 .profile>img {
@@ -156,9 +160,9 @@ hr {
   max-width: 400px;
   height: 400px;
   border-radius: 1rem;
-  box-shadow: 0px 0px 10px var(--bg-color-sub);
   user-select: none;
   overflow: hidden;
+  border: 2px solid grey;
   position: relative;
 }
 
@@ -172,7 +176,7 @@ hr {
 .author {
   display: flex;
   justify-content: flex-start;
-  background-color: var(--bg-color-sub);
+  background-color: var(--bg-color);
   align-items: center;
   padding: 0.5rem;
   gap: 1rem;
@@ -207,7 +211,7 @@ div.btns {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: var(--bg-color-sub);
+  background-color: var(--bg-color);
   gap: 1rem;
   padding: 1rem;
   position: absolute;
@@ -234,6 +238,11 @@ div.btns>button svg.liked {
   fill: red;
 }
 
+@media screen and (max-width: 550px) {
+  .container {
+    margin: 1rem 0.5rem;
+  }
+}
 
 @media screen and (max-width: 500px) {
 
