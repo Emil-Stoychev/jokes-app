@@ -1,14 +1,16 @@
 <script>
+import { useRoute } from 'vue-router';
+import useAuthStore from '../../store/authStore';
+
 export default {
+    setup() {
+        const authStore = useAuthStore()
+        const route = useRoute();
+
+        return { authStore, route }
+    },
     data() {
         return {
-            navLinks: [
-                { value: '/', name: 'Home', selected: true },
-                { value: '/create', name: 'Create', selected: false },
-                { value: '/profile', name: 'Profile', selected: false },
-                { value: '/about', name: 'About', selected: false },
-                { value: '/login', name: 'Login', selected: false },
-            ],
             emojies: ['hiding-left.gif', 'hiding-right.gif'],
             leftPosition: `${Math.floor(Math.random() * (48 - 2 + 1) + 2)}rem`,
             rightPosition: `${Math.floor(Math.random() * (48 - 2 + 1) + 2)}rem`,
@@ -20,19 +22,32 @@ export default {
             this.isChanged = !this.isChanged
             this.leftPosition = `${Math.floor(Math.random() * (48 - 2 + 1) + 2)}rem`
             this.rightPosition = `${Math.floor(Math.random() * (48 - 2 + 1) + 2)}rem`
-        }
+        },
+        logout() {
+            this.authStore.logoutUser();
+            this.$router.push('/login')
+        },
+    },
+    mounted() {
+        this.authStore.checkUserByToken()
     }
 };
 </script>
 
 <template>
-    <img @click="hideAndChangePos" v-if="isChanged" class="hiding-left" :style="{ bottom: leftPosition }" :src="`/images/${emojies[0]}`" />
-    <img @click="hideAndChangePos" v-else class="hiding-right" :style="{ bottom: rightPosition }" :src="`/images/${emojies[1]}`" />
+    <img @click="hideAndChangePos" v-if="isChanged" class="hiding-left" :style="{ bottom: leftPosition }"
+        :src="`/images/${emojies[0]}`" />
+    <img @click="hideAndChangePos" v-else class="hiding-right" :style="{ bottom: rightPosition }"
+        :src="`/images/${emojies[1]}`" />
     <nav>
         <img src="https://i.pinimg.com/originals/03/3f/59/033f59d49fcf7135adb4e0424eea109b.png" />
         <ul>
-            <router-link v-for="el of this.navLinks" :to="el.value" :key="el.value"
-                :class="{ 'selected': this.$route.path === el.value }">{{ el.name }}</router-link>
+            <router-link :to="{ path: '/' }" :class="{ 'selected': route.path === '/' }">Home</router-link>
+            <router-link v-show="this.authStore.isAuthenticated" :to="{ path: '/create' }" :class="{ 'selected': route.path === '/create' }">Create</router-link>
+            <router-link v-show="this.authStore.isAuthenticated" :to="{ path: '/profile' }" :class="{ 'selected': route.path === '/profile' }">Profile</router-link>
+            <router-link :to="{ path: '/about' }" :class="{ 'selected': route.path === '/about' }">About</router-link>
+            <router-link v-show="!this.authStore.isAuthenticated" :to="{ path: '/login' }" :class="{ 'selected': route.path === '/login' }">Login</router-link>
+            <router-link v-show="this.authStore.isAuthenticated" :to="{ path: '/login' }" @click="logout">Logout</router-link>
         </ul>
     </nav>
 </template>
