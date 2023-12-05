@@ -13,6 +13,7 @@ const routes = [
     { path: '/create', component: Create },
     { path: '/edit/:id', component: Edit },
     { path: '/profile', component: Profile },
+    { path: '/profile/:id', component: Profile },
     { path: '/about', component: About },
     { path: '/login', component: Login },
     { path: '/register', component: Register },
