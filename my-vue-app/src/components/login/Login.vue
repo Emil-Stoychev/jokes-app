@@ -2,7 +2,6 @@
 import { RouterLink } from 'vue-router';
 import { useVuelidate } from '@vuelidate/core'
 import { required, minLength, maxLength } from '@vuelidate/validators'
-import { login } from '../../services/authService';
 import useAuthStore from '../../store/authStore';
 
 export default {

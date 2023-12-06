@@ -1,7 +1,10 @@
 <script>
 import useAuthStore from '../../store/authStore';
 import useJokeStore from '../../store/jokeStore';
+import { useVuelidate } from '@vuelidate/core'
+import { sameAs } from '@vuelidate/validators'
 import { onMounted } from 'vue'
+import { format } from 'timeago.js'
 
 export default {
   setup() {
@@ -12,12 +15,19 @@ export default {
       authStore.checkUserByToken();
     });
 
-    return { authStore, jokeStore };
+    return { authStore, jokeStore, v$: useVuelidate(), format };
   },
   data() {
     return {
       jokes: [],
-      currentSlide: ''
+      currentSlide: '',
+      deleteToggle: false,
+      confirmText: ''
+    }
+  },
+  validations() {
+    return {
+      confirmText: { sameAs: sameAs('confirm') },
     }
   },
   methods: {
@@ -64,6 +74,17 @@ export default {
     },
     goToEdit(jokeId) {
       this.$router.push(`/edit/${jokeId}`)
+    },
+    deleteToggleFn() {
+      this.confirmText = ''
+      this.deleteToggle = !this.deleteToggle
+    },
+    async deleteAccFn() {
+      const validated = await this.v$.$validate()
+      if (validated) {
+        await this.authStore.deleteAcc()
+        this.$router.push('/register')
+      }
     }
   },
 };
@@ -88,14 +109,32 @@ export default {
 
     <div v-show="this.currentSlide == ''" class="profileDetails">
       <h2 class="detailsHeader">DETAILS INFORMATION</h2>
-      
+
       <h2 class="detailsHeader">My jokes: 0</h2>
       <h2 class="detailsHeader">Liked jokes: 2</h2>
       <h2 class="detailsHeader">Created: {{ new Date().getFullYear() }}</h2>
-      
+
       <div class="profileBtns">
-        <button type="button" @click="this.$router.push(`/editProfile/${this.authStore.user?._id}`)">EDIT</button>        
-        <button type="button" class="deleteBtn">DELETE</button>        
+        <button v-show="!this.deleteToggle" type="button"
+          @click="this.$router.push(`/editProfile/${this.authStore.user?._id}`)">EDIT</button>
+        <button v-show="!this.deleteToggle" type="button" @click="deleteToggleFn" class="deleteBtn">DELETE</button>
+
+        <div v-show="this.deleteToggle" class="deleteAccBtnsCnt">
+
+          <div class="input-container">
+            <label for="confirmText">Type <strong>confirm</strong> to delete your profile</label>
+            <input type="text" id="confirmText" v-model.trim="confirmText" @focus="handleFocus" @blur="handleFocus" />
+            <div class="input-errors" v-for="error of v$.confirmText.$errors" :key="error.$uid">
+              <div class="error-msg">{{ error.$message }}</div>
+            </div>
+          </div>
+
+          <div class="delete-sub">
+            <button type="button" @click="deleteToggleFn">CANCEL</button>
+            <button type="button" @click="deleteAccFn" class="deleteBtn">DELETE</button>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -104,9 +143,10 @@ export default {
       <div v-for="joke of this.jokes" :key="joke?._id" class="box">
         <div class="author">
           <img v-if="this.currentSlide != 'myJokes'" class="emojie" :src="`/images/${joke.author?.avatar}`" />
-          <div v-if="this.currentSlide != 'myJokes'" class="authorInfo">
+          <div class="authorInfo">
             <h2>{{ joke.author?.username }}</h2>
-            <h3>Rank: {{ joke.author?.rank }}</h3>
+            <h3 v-if="this.currentSlide != 'myJokes'">Rank: {{ joke.author?.rank }}</h3>
+            <h3 class="createdTime">{{ format(joke?.createdAt) }}</h3>
           </div>
         </div>
 
@@ -233,7 +273,7 @@ div.profileBtns {
   margin: 0 auto;
 }
 
-div.profileBtns > button {
+div.profileBtns>button {
   width: 100%;
   padding: 10px;
   background-color: #4CAF50;
@@ -247,18 +287,73 @@ div.profileBtns > button {
   font-size: 16px;
 }
 
-div.profileBtns > button:hover {
+div.profileBtns>button:hover {
   background-color: #45a049;
 }
 
-div.profileBtns > .deleteBtn {
+div.profileBtns>.deleteBtn {
   background-color: red;
 }
 
-div.profileBtns > .deleteBtn:hover {
+div.profileBtns>.deleteBtn:hover {
   background-color: rgb(209, 3, 3);
 }
 
+/* DELETE ACCOUNT BUTTONS AND INPUT CONT */
+
+label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+div.input-container>input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
+}
+div.deleteAccBtnsCnt {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem auto;
+}
+
+div.delete-sub {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem auto;
+}
+
+div.delete-sub>button {
+  padding: 10px;
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  font-weight: bolder;
+  font-size: 16px;
+}
+
+div.delete-sub>button:hover {
+  background-color: #45a049;
+}
+
+div.delete-sub>.deleteBtn {
+  background-color: red;
+}
+
+div.delete-sub>.deleteBtn:hover {
+  background-color: rgb(209, 3, 3);
+}
 
 /* POSTS */
 .posts {
@@ -302,6 +397,7 @@ div.profileBtns > .deleteBtn:hover {
 .authorInfo {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .authorInfo h2,
@@ -309,6 +405,12 @@ div.profileBtns > .deleteBtn:hover {
   font-size: 12px;
   margin: 0;
   text-align: start;
+}
+
+.authorInfo h3.createdTime {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
 }
 
 .textCnt {
@@ -398,12 +500,18 @@ div.btns>button svg.liked {
   /* DETAILS INFO PROFILE BTNS */
 
   div.profileBtns {
-  width: 80%;
-}
+    width: 80%;
+  }
 
-.detailsHeader {
-  font-size: 16px;
-}
+  .detailsHeader {
+    font-size: 16px;
+  }
+
+  /* DELETE ACCOUNT BUTTONS */
+
+  div.deleteAccBtnsCnt {
+    width: 80%;
+  }
 
   /* SLIDER */
   .sliderCont {

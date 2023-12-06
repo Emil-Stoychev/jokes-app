@@ -1,24 +1,26 @@
 <script>
 import useJokeStore from '../store/jokeStore'
 import useAuthStore from '../store/authStore'
+import { format } from 'timeago.js';
 
 export default {
   setup() {
     const jokeStore = useJokeStore()
     const authStore = useAuthStore()
 
-    return { jokeStore, authStore }
+    return { jokeStore, authStore, format }
   },
   data() {
     return {
-      allJokes: []
+      allJokes: [],
+      type: false
     }
   },
   methods: {
     async deleteJoke(jokeId) {
       const res = await this.jokeStore.deleteCurrJoke(jokeId, this.allJokes)
 
-      if(!res.message) {
+      if (!res.message) {
         this.allJokes = res
       } else {
         return console.log(res);
@@ -27,7 +29,7 @@ export default {
     async likeToggle(jokeId) {
       const res = await this.jokeStore.likeJokeToggle(jokeId, this.allJokes)
 
-      if(!!res.message) {
+      if (!!res.message) {
         this.allJokes = res
       } else {
         return console.log(res);
@@ -35,6 +37,41 @@ export default {
     },
     goToEdit(jokeId) {
       this.$router.push(`/edit/${jokeId}`)
+    },
+    sortingBy(option) {
+      if (option == 'likes') {
+        if (this.type) {
+          this.allJokes = this.allJokes.sort((a, b) => a.likes.length - b.likes.length)
+          this.type = !this.type
+        } else {
+          this.allJokes = this.allJokes.sort((a, b) => b.likes.length - a.likes.length)
+          this.type = !this.type
+        }
+      } else if (option == 'created') {
+        if (this.type) {
+          this.allJokes = this.allJokes.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+          this.type = !this.type
+        } else {
+          this.allJokes = this.allJokes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          this.type = !this.type
+        }
+      } else if (option == 'text') {
+        if (this.type) {
+          this.allJokes = this.allJokes.sort((a, b) => a.text.length - b.text.length)
+          this.type = !this.type
+        } else {
+          this.allJokes = this.allJokes.sort((a, b) => b.text.length - a.text.length)
+          this.type = !this.type
+        }
+      } else if (option == 'rank') {
+        if (this.type) {
+          this.allJokes = this.allJokes.sort((a, b) => a.author.rank - b.author.rank)
+          this.type = !this.type
+        } else {
+          this.allJokes = this.allJokes.sort((a, b) => b.author.rank - a.author.rank)
+          this.type = !this.type
+        }
+      }
     }
   },
   async mounted() {
@@ -45,6 +82,13 @@ export default {
 </script>
 
 <template>
+  <div class="filteringBtns">
+    <button @click="sortingBy('created')">BY CREATED</button>
+    <button @click="sortingBy('likes')">BY LIKES</button>
+    <button @click="sortingBy('text')">BY TEXT LENGTH</button>
+    <button @click="sortingBy('rank')">BY RANK</button>
+  </div>
+
   <div class="container">
 
     <div v-for="joke of this.allJokes" :key="joke?._id" class="box">
@@ -53,6 +97,7 @@ export default {
         <div class="authorInfo">
           <h2>{{ joke.author?.username }}</h2>
           <h3>Rank: {{ joke.author?.rank }}</h3>
+          <h3 class="createdTime">{{ format(joke?.createdAt) }}</h3>
         </div>
       </div>
 
@@ -130,6 +175,8 @@ export default {
 .authorInfo {
   display: flex;
   flex-direction: column;
+  position: relative;
+  width: 100%;
 }
 
 .authorInfo h2,
@@ -139,9 +186,15 @@ export default {
   text-align: start;
 }
 
+.authorInfo h3.createdTime {
+  position: absolute;
+  right: 1rem;
+  top: 0.5rem;
+}
+
 .textCnt {
   overflow-y: auto;
-  height: 68%;
+  height: 70%;
 }
 
 .textCnt>p {
@@ -184,6 +237,30 @@ div.btns>button svg.liked {
   fill: red;
 }
 
+/* FILTERING BUTTONS */
+
+div.filteringBtns {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem;
+}
+
+div.filteringBtns>button {
+  padding: 0.7rem 1.5rem;
+  letter-spacing: 1px;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 4px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+div.filteringBtns>button:hover {
+  background-color: #45a049;
+}
 
 @media screen and (max-width: 450px) {
   .container {

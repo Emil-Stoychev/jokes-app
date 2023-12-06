@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const { User } = require("../Models/User");
+const { deleteJokesByAuthorId } = require("./jokesService");
 
 let secret = process.env.secret;
 
@@ -19,20 +20,6 @@ const getUserByToken = async (userId) => {
       rank: userAcc.rank,
       avatar: userAcc.avatar,
     };
-  } catch (error) {
-    return error;
-  }
-};
-
-const getUserByJokeAuthor = async (userId) => {
-  try {
-    let userAcc = await User.findById(userId);
-
-    if (!userAcc) {
-      return { message: "User not exist!" };
-    }
-
-    return userAcc;
   } catch (error) {
     return error;
   }
@@ -149,10 +136,25 @@ const editProfile = async (data, userId) => {
   }
 };
 
+const deleteProfile = async (userId) => {
+  try {
+    let user = await User.findById(userId);
+
+    if (!user?._id) return { message: "User not found!" };
+
+    await deleteJokesByAuthorId(userId)
+    await User.findByIdAndDelete(userId)
+
+    return {}
+  } catch (error) {
+    return error;
+  }
+};
+
 module.exports = {
-  login,
   getUserByToken,
+  login,
   register,
   editProfile,
-  getUserByJokeAuthor,
+  deleteProfile,
 };

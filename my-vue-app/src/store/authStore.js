@@ -4,6 +4,7 @@ import {
   login,
   register,
   editUserAcc,
+  deleteAccount,
 } from "../services/authService";
 
 const useAuthStore = defineStore("auth", {
@@ -99,6 +100,20 @@ const useAuthStore = defineStore("auth", {
       this.user = {};
       this.isAuthenticated = false;
       localStorage.removeItem("sessionStorage");
+    },
+    deleteAcc() {
+      return deleteAccount(localStorage.getItem("sessionStorage")).then(
+        (res) => {
+          try {
+            this.user = {};
+            this.isAuthenticated = false;
+            localStorage.removeItem("sessionStorage");
+            return res?.ok;
+          } catch (error) {
+            return res?.ok
+          }
+        }
+      );
     },
   },
 });

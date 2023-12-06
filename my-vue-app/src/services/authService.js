@@ -35,3 +35,10 @@ export const editUserAcc = (data, token) => {
     body: JSON.stringify(data),
   }).then((res) => res.json());
 };
+
+
+export const deleteAccount = (token) => {
+  return fetch(`${URL}/deleteAccount/${token}`, {
+    method: 'DELETE'
+  })
+}

@@ -1,5 +1,5 @@
 const { Joke } = require("../Models/Joke");
-const { getUserByJokeAuthor } = require("./authService");
+const { User } = require("../Models/User");
 
 const getAll = async () => {
   try {
@@ -12,7 +12,7 @@ const getAll = async () => {
 
 const getAllByUser = async (userId) => {
   try {
-    let user = await getUserByJokeAuthor(userId);
+    let user = await getUserByJokeAuthorId(userId);
 
     if (!user._id) {
       return { message: "User not exist!" };
@@ -27,7 +27,7 @@ const getAllByUser = async (userId) => {
 
 const getJokeForEditById = async (jokeId, userId) => {
   try {
-    let user = await getUserByJokeAuthor(userId);
+    let user = await getUserByJokeAuthorId(userId);
 
     if (!user._id) {
       return { message: "User not exist!" };
@@ -51,7 +51,7 @@ const getJokeForEditById = async (jokeId, userId) => {
 
 const getAllLikedByUser = async (userId) => {
   try {
-    let user = await getUserByJokeAuthor(userId);
+    let user = await getUserByJokeAuthorId(userId);
 
     if (!user._id) {
       return { message: "User not exist!" };
@@ -66,11 +66,7 @@ const getAllLikedByUser = async (userId) => {
 
 const createJoke = async (container, userId) => {
   try {
-    let user = await getUserByJokeAuthor(userId);
-
-    if (!user._id) {
-      return { message: "User is not exist!" };
-    }
+    let user = await getUserByJokeAuthorId(userId);
 
     let createdJoke = await Joke.create({
       author: user._id,
@@ -90,7 +86,7 @@ const createJoke = async (container, userId) => {
 
 const editJoke = async (container, jokeId, userId) => {
   try {
-    let user = await getUserByJokeAuthor(userId);
+    let user = await getUserByJokeAuthorId(userId);
 
     if (!user._id) {
       return { message: "User not exist!" };
@@ -121,6 +117,15 @@ const editJoke = async (container, jokeId, userId) => {
   }
 };
 
+const deleteJokesByAuthorId = async (author) => {
+  try {
+    return await Joke.deleteMany({ author })
+  } catch (error) {
+    console.log(error);
+    return error
+  }
+}
+
 const likeJoke = async (jokeId, userId) => {
   try {
     let currJoke = await Joke.findById(jokeId);
@@ -149,7 +154,7 @@ const likeJoke = async (jokeId, userId) => {
 const deleteJoke = async (jokeId, userId) => {
   try {
     let joke = await Joke.findById(jokeId);
-    let user = await getUserByJokeAuthor(userId);
+    let user = await getUserByJokeAuthorId(userId);
 
     if (!user._id || userId != joke?.author) {
       return { message: "Access denied!" };
@@ -163,6 +168,24 @@ const deleteJoke = async (jokeId, userId) => {
     return error;
   }
 };
+
+
+// USER FUNC
+
+const getUserByJokeAuthorId = async (userId) => {
+  try {
+    let userAcc = await User.findById(userId);
+
+    if (!userAcc) {
+      return { message: "User not exist!" };
+    }
+
+    return userAcc;
+  } catch (error) {
+    return error;
+  }
+};
+
 module.exports = {
   getAll,
   createJoke,
@@ -172,4 +195,5 @@ module.exports = {
   getJokeForEditById,
   editJoke,
   deleteJoke,
+  deleteJokesByAuthorId
 };
