@@ -104,59 +104,49 @@ const register = async (data) => {
 };
 
 const editProfile = async (data, userId) => {
-  // try {
-  //   let user = await User.findById(userId);
-  //   if (!user?._id) return { message: "Потребителят не е намерен!" };
-  //   const userAcc = await User.find({
-  //     $and: [
-  //       {
-  //         $or: [{ username: data.username }, { phone: data.phone }],
-  //       },
-  //       {
-  //         _id: { $ne: userId },
-  //       },
-  //     ],
-  //   });
-  //   if (userAcc.length > 0)
-  //     return { message: "Името или номера вече са заети!" };
-  //   let isValidPassword = await bcrypt.compare(data.oldPassword, user.password);
-  //   if (!isValidPassword) {
-  //     return { message: "Паролите не съвпадат!" };
-  //   }
-  //   if (data.newPassword.trim() != "") {
-  //     let hashedPassword = await bcrypt.hash(data.newPassword, 10);
-  //     user.password = hashedPassword;
-  //   }
-  //   user.username = data.username;
-  //   user.phone = data.phone;
-  //   user.image = data.image;
-  //   user.save();
-  //   let result = await new Promise((resolve, reject) => {
-  //     jwt.sign(
-  //       { _id: user._id, username: user.username },
-  //       secret,
-  //       { expiresIn: "7d" },
-  //       (err, token) => {
-  //         if (err) {
-  //           return reject(err);
-  //         }
-  //         resolve(token);
-  //       }
-  //     );
-  //   });
-  //   return {
-  //     token: result,
-  //     _id: user?._id,
-  //     username: user?.username,
-  //     role: user?.role,
-  //     image: user?.image,
-  //     phone: user?.phone,
-  //     active: user?.active,
-  //     timeTable: user?.timeTable,
-  //   };
-  // } catch (error) {
-  //   return error;
-  // }
+  try {
+    const { username, password, newPassword, avatar } = data;
+    let user = await User.findById(userId);
+
+    if (!user?._id) return { message: "User not found!" };
+
+    let isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return { message: "Incorrect password!" };
+    }
+
+    if (newPassword.trim() != "") {
+      if (newPassword.length > 3) {
+        let hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+      }
+    }
+    user.avatar = avatar;
+    user.save();
+
+    let result = await new Promise((resolve, reject) => {
+      jwt.sign(
+        { _id: user._id, username: user.username },
+        secret,
+        { expiresIn: "7d" },
+        (err, token) => {
+          if (err) {
+            return reject(err);
+          }
+
+          resolve(token);
+        }
+      );
+    });
+
+    return {
+      token: result,
+      _id: user?._id,
+      username: user?.username,
+    };
+  } catch (error) {
+    return error;
+  }
 };
 
 module.exports = {
@@ -164,5 +154,5 @@ module.exports = {
   getUserByToken,
   register,
   editProfile,
-  getUserByJokeAuthor
+  getUserByJokeAuthor,
 };

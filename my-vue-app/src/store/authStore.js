@@ -1,5 +1,10 @@
 import { defineStore } from "pinia";
-import { getUserByToken, login, register } from "../services/authService";
+import {
+  getUserByToken,
+  login,
+  register,
+  editUserAcc,
+} from "../services/authService";
 
 const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -10,14 +15,13 @@ const useAuthStore = defineStore("auth", {
   actions: {
     checkUserByToken() {
       const token = localStorage.getItem("sessionStorage");
-
       if (token) {
         getUserByToken(token).then((res) => {
           try {
             if (!res.message) {
               this.user = res;
               this.isAuthenticated = true;
-              return res
+              return res;
             } else {
               this.user = {};
               this.isAuthenticated = false;
@@ -61,6 +65,26 @@ const useAuthStore = defineStore("auth", {
       return register(dataInputs).then((res) => {
         try {
           if (!res.message) {
+            return res;
+          } else {
+            return { message: "" };
+          }
+        } catch (error) {
+          console.log(error);
+          return { message: "" };
+        }
+      });
+    },
+    editUser(dataInputs) {
+      return editUserAcc(
+        dataInputs,
+        localStorage.getItem("sessionStorage")
+      ).then((res) => {
+        try {
+          if (!res.message) {
+            this.user = res;
+            this.isAuthenticated = true;
+            localStorage.setItem("sessionStorage", res?.token);
             return res;
           } else {
             return { message: "" };
