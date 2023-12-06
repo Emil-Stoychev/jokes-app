@@ -140,7 +140,8 @@ export default {
 .container {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-around;
+  justify-content: center;
+  margin: 0 auto;
   gap: 2rem;
   padding: 2rem;
 }
