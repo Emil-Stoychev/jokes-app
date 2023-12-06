@@ -112,7 +112,7 @@ export default {
 
       <h2 class="detailsHeader">My jokes: 0</h2>
       <h2 class="detailsHeader">Liked jokes: 2</h2>
-      <h2 class="detailsHeader">Created: {{ new Date().getFullYear() }}</h2>
+      <h2 class="detailsHeader">Created: {{ format(this.authStore.user?.createdAt) }}</h2>
 
       <div class="profileBtns">
         <button v-show="!this.deleteToggle" type="button"

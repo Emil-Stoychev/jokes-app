@@ -19,6 +19,7 @@ const getUserByToken = async (userId) => {
       username: userAcc.username,
       rank: userAcc.rank,
       avatar: userAcc.avatar,
+      createdAt: userAcc.createdAt
     };
   } catch (error) {
     return error;
@@ -58,8 +59,11 @@ const login = async (data) => {
 
     return {
       token: result,
-      _id: user?._id,
-      username: user?.username,
+      _id: userAcc._id,
+      username: userAcc.username,
+      rank: userAcc.rank,
+      avatar: userAcc.avatar,
+      createdAt: userAcc.createdAt
     };
   } catch (error) {
     return error;
@@ -128,8 +132,11 @@ const editProfile = async (data, userId) => {
 
     return {
       token: result,
-      _id: user?._id,
-      username: user?.username,
+      _id: userAcc._id,
+      username: userAcc.username,
+      rank: userAcc.rank,
+      avatar: userAcc.avatar,
+      createdAt: userAcc.createdAt
     };
   } catch (error) {
     return error;
