@@ -1,60 +1,77 @@
 <script>
-import { getUserByToken } from '../../services/authService';
 import useAuthStore from '../../store/authStore';
 import useJokeStore from '../../store/jokeStore';
-import { onMounted, watchEffect } from 'vue'
-import { useRoute } from 'vue-router'
+import { onMounted } from 'vue'
 
 export default {
-  data() {
-    return {
-      currentSlide: 'myJokes'
-    }
-  },
-  methods: {
-    changeSide(name) {
-      this.currentSlide = name
-
-      const userId = this.route?.params?.id ? this.route.params.id : this.authStore.user?._id
-
-      if (name == 'myJokes') {
-        this.jokeStore.getAllJokesByUser(userId);
-      } else {
-        this.jokeStore.getAllLikedJokesByUser(userId);
-      }
-    },
-    deleteJoke(jokeId) {
-      this.jokeStore.deleteCurrJoke(jokeId, 'myJokes')
-    },
-    likeToggle(jokeId) {
-      this.jokeStore.likeJokeToggle(jokeId, 'profile')
-    }
-  },
   setup() {
     const authStore = useAuthStore()
     const jokeStore = useJokeStore()
-    const route = useRoute()
 
     onMounted(() => {
       authStore.checkUserByToken();
     });
 
-    watchEffect(() => {
-      const userId = route?.params?.id ? route.params.id : authStore.user?._id
-
-      if (userId) {
-        jokeStore.getAllJokesByUser(userId);
-      }
-    });
-
     return { authStore, jokeStore };
+  },
+  data() {
+    return {
+      jokes: [],
+      currentSlide: ''
+    }
+  },
+  methods: {
+    async changeSide(name) {
+      this.currentSlide = name
+
+      const userId = this.route?.params?.id ? this.route.params.id : this.authStore.user?._id
+
+      if (name == 'myJokes') {
+        const res = await this.jokeStore.getAllJokesByUser(userId);
+
+        if (!res.message) {
+          this.jokes = res
+        } else {
+          console.log(res);
+        }
+      } else {
+        const res = await this.jokeStore.getAllLikedJokesByUser(userId);
+
+        if (!res.message) {
+          this.jokes = res
+        } else {
+          console.log(res);
+        }
+      }
+    },
+    async deleteJoke(jokeId) {
+      const res = await this.jokeStore.deleteCurrJoke(jokeId, this.jokes)
+
+      if (!res.message) {
+        this.jokes = res
+      } else {
+        return console.log(res);
+      }
+    },
+    async likeToggle(jokeId) {
+      const res = await this.jokeStore.likeJokeToggle(jokeId, this.jokes)
+
+      if (!!res.message) {
+        this.jokes = res
+      } else {
+        return console.log(res);
+      }
+    },
+    goToEdit(jokeId) {
+      this.$router.push(`/edit/${jokeId}`)
+    }
   },
 };
 </script>
 <template>
   <div class="container">
 
-    <div class="profile">
+    <div :class="`profile ${this.currentSlide == '' && 'profileSelected'}`" @click="this.currentSlide = ''">
       <img :src="`/images/${this.authStore.user?.avatar}`" />
       <div>
         <h2>{{ this.authStore.user?.username }}</h2>
@@ -69,9 +86,22 @@ export default {
 
     <hr />
 
-    <div class="posts">
+    <div v-show="this.currentSlide == ''" class="profileDetails">
+      <h2 class="detailsHeader">DETAILS INFORMATION</h2>
+      
+      <h2 class="detailsHeader">My jokes: 0</h2>
+      <h2 class="detailsHeader">Liked jokes: 2</h2>
+      <h2 class="detailsHeader">Created: {{ new Date().getFullYear() }}</h2>
+      
+      <div class="profileBtns">
+        <button type="button" @click="this.$router.push(`/editProfile/${this.authStore.user?._id}`)">EDIT</button>        
+        <button type="button" class="deleteBtn">DELETE</button>        
+      </div>
+    </div>
 
-      <div v-for="joke of jokeStore?.[currentSlide]" :key="joke?._id" class="box">
+    <div v-show="this.currentSlide != ''" class="posts">
+
+      <div v-for="joke of this.jokes" :key="joke?._id" class="box">
         <div class="author">
           <img v-if="this.currentSlide != 'myJokes'" class="emojie" :src="`/images/${joke.author?.avatar}`" />
           <div v-if="this.currentSlide != 'myJokes'" class="authorInfo">
@@ -96,7 +126,7 @@ export default {
             <p class="likesCount">{{ joke?.likes?.length }}</p>
           </button>
           <div class="btns-sub" v-if="this.currentSlide == 'myJokes'">
-            <button type="button">
+            <button type="button" @click="goToEdit(joke?._id)">
               <svg xmlns="http://www.w3.org/2000/svg" fill="white" height="24" width="24" viewBox="0 0 512 512">
                 <path
                   d="M362.7 19.3L314.3 67.7 444.3 197.7l48.4-48.4c25-25 25-65.5 0-90.5L453.3 19.3c-25-25-65.5-25-90.5 0zm-71 71L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2C-1.5 489.7 .8 498.8 7 505s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L421.7 220.3 291.7 90.3z" />
@@ -146,8 +176,14 @@ hr {
   width: 450px;
   border-radius: 1rem;
   margin: 3rem auto 0 auto;
-  border: var(--border-main-color);
+  border: 2px solid grey;
+  box-shadow: 0px 0px 10px grey;
+  cursor: pointer;
+}
+
+.profileSelected {
   box-shadow: 0px 0px 10px green;
+  border: var(--border-main-color);
 }
 
 .profile>img {
@@ -184,6 +220,38 @@ hr {
 .selected {
   border-bottom: var(--border-main-color);
 }
+
+
+/* PROFILE INFORMATION */
+
+div.profileBtns {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  margin: 0 auto;
+}
+
+div.profileBtns > button {
+  width: 100%;
+  padding: 10px;
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 1rem 0;
+}
+
+div.profileBtns > button:hover {
+  background-color: #45a049;
+}
+
+div.profileBtns > .deleteBtn {
+  background-color: red;
+}
+
 
 /* POSTS */
 .posts {
@@ -320,6 +388,15 @@ div.btns>button svg.liked {
     text-align: center;
   }
 
+  /* DETAILS INFO PROFILE BTNS */
+
+  div.profileBtns {
+  width: 80%;
+}
+
+.detailsHeader {
+  font-size: 16px;
+}
 
   /* SLIDER */
   .sliderCont {

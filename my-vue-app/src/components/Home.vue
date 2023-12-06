@@ -1,24 +1,44 @@
 <script>
 import useJokeStore from '../store/jokeStore'
 import useAuthStore from '../store/authStore'
-import { onMounted } from 'vue'
 
 export default {
   setup() {
     const jokeStore = useJokeStore()
     const authStore = useAuthStore()
-    onMounted(() => {
-      jokeStore.getAllJokes();
-    });
+
     return { jokeStore, authStore }
   },
-  methods: {
-    deleteJoke(jokeId) {
-      this.jokeStore.deleteCurrJoke(jokeId, 'allJokes')
-    },
-    likeToggle(jokeId) {
-      this.jokeStore.likeJokeToggle(jokeId, 'home')
+  data() {
+    return {
+      allJokes: []
     }
+  },
+  methods: {
+    async deleteJoke(jokeId) {
+      const res = await this.jokeStore.deleteCurrJoke(jokeId, this.allJokes)
+
+      if(!res.message) {
+        this.allJokes = res
+      } else {
+        return console.log(res);
+      }
+    },
+    async likeToggle(jokeId) {
+      const res = await this.jokeStore.likeJokeToggle(jokeId, this.allJokes)
+
+      if(!!res.message) {
+        this.allJokes = res
+      } else {
+        return console.log(res);
+      }
+    },
+    goToEdit(jokeId) {
+      this.$router.push(`/edit/${jokeId}`)
+    }
+  },
+  async mounted() {
+    this.allJokes = await this.jokeStore.getAllJokes() || []
   }
 }
 
@@ -27,7 +47,7 @@ export default {
 <template>
   <div class="container">
 
-    <div v-for="joke of jokeStore.allJokes" :key="joke?._id" class="box">
+    <div v-for="joke of this.allJokes" :key="joke?._id" class="box">
       <div class="author">
         <img class="emojie" :src="`/images/${joke.author?.avatar}`" />
         <div class="authorInfo">
@@ -36,8 +56,8 @@ export default {
         </div>
       </div>
 
-      <div class="textCnt" :style="{backgroundColor: joke.bgColor}">
-        <p :style="{color: joke.textColor, textAlign: joke.textAlign, fontSize: joke.size + 'rem'}" >{{ joke.text }}</p>
+      <div class="textCnt" :style="{ backgroundColor: joke.bgColor }">
+        <p :style="{ color: joke.textColor, textAlign: joke.textAlign, fontSize: joke.size + 'rem' }">{{ joke.text }}</p>
       </div>
 
       <div class="btns">
@@ -51,7 +71,7 @@ export default {
           <p class="likesCount">{{ joke?.likes?.length }}</p>
         </button>
         <div class="btns-sub" v-show="this.authStore?.user?._id == joke?.author?._id">
-          <button type="button">
+          <button type="button" @click="goToEdit(joke?._id)">
             <svg xmlns="http://www.w3.org/2000/svg" fill="white" height="24" width="24" viewBox="0 0 512 512">
               <path
                 d="M362.7 19.3L314.3 67.7 444.3 197.7l48.4-48.4c25-25 25-65.5 0-90.5L453.3 19.3c-25-25-65.5-25-90.5 0zm-71 71L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2C-1.5 489.7 .8 498.8 7 505s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L421.7 220.3 291.7 90.3z" />

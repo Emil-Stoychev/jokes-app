@@ -6,43 +6,49 @@ import {
   likeJoke,
   allJokesByUser,
   allLikedJokesByUser,
+  getJokeForEditById,
+  editJokeById,
 } from "../services/jokeService";
 
 const useJokeStore = defineStore("joke", {
-  state: () => ({
-    allJokes: [],
-    myJokes: [],
-    likedJokes: [],
-  }),
+  state: () => ({}),
   getters: {},
   actions: {
     getAllJokes() {
-      getAll().then((res) => {
+      return getAll().then((res) => {
         if (!res.message) {
-          this.allJokes = res;
+          return res;
         } else {
           console.log(res);
-          this.allJokes = [];
+          return [];
         }
       });
     },
+    getJokeByIdForEdit(jokeId) {
+      return getJokeForEditById(
+        jokeId,
+        localStorage.getItem("sessionStorage")
+      ).then((res) => {
+        return res;
+      });
+    },
     getAllJokesByUser(userId) {
-      allJokesByUser(userId).then((res) => {
+      return allJokesByUser(userId).then((res) => {
         if (!res.message) {
-          this.myJokes = res;
+          return res;
         } else {
           console.log(res);
-          this.myJokes = [];
+          return res;
         }
       });
     },
     getAllLikedJokesByUser(userId) {
-      allLikedJokesByUser(userId).then((res) => {
+      return allLikedJokesByUser(userId).then((res) => {
         if (!res.message) {
-          this.likedJokes = res;
+          return res;
         } else {
           console.log(res);
-          this.likedJokes = [];
+          return res;
         }
       });
     },
@@ -62,17 +68,12 @@ const useJokeStore = defineStore("joke", {
         }
       });
     },
-    deleteCurrJoke(jokeId, option) {
+    deleteCurrJoke(jokeId, allJokes) {
       return deleteJoke(jokeId, localStorage.getItem("sessionStorage")).then(
         (res) => {
           try {
             if (!res.message) {
-              if (option == "myJokes") {
-                this.myJokes = this.myJokes.filter((x) => x?._id != jokeId);
-              } else if ("allJokes") {
-                this.allJokes = this.allJokes.filter((x) => x?._id != jokeId);
-              }
-              return res;
+              return allJokes.filter((x) => x?._id != jokeId);
             } else {
               return { message: "" };
             }
@@ -82,23 +83,18 @@ const useJokeStore = defineStore("joke", {
         }
       );
     },
-    likeJokeToggle(jokeId, option) {
+    likeJokeToggle(jokeId, allJokes, option) {
       return likeJoke(jokeId, localStorage.getItem("sessionStorage")).then(
         (res) => {
           try {
             if (!res.message) {
-              if (option == "home") {
-                this.allJokes = this.allJokes.map((x) => {
-                  if (x?._id == jokeId) {
-                    x.likes = res.likes;
-                  }
+              return allJokes.map((x) => {
+                if (x?._id == jokeId) {
+                  x.likes = res.likes;
+                }
 
-                  return x;
-                });
-              } else if (option == "profile") {
-                this.likedJokes = this.likedJokes.filter((x) => x?._id != jokeId);
-              }
-              return res;
+                return x;
+              });
             } else {
               return { message: "" };
             }
@@ -107,6 +103,23 @@ const useJokeStore = defineStore("joke", {
           }
         }
       );
+    },
+    editCurrJoke(dataInputs, jokeId) {
+      return editJokeById(
+        dataInputs,
+        jokeId,
+        localStorage.getItem("sessionStorage")
+      ).then((res) => {
+        try {
+          if (!res.message) {
+            return res;
+          } else {
+            return { message: "" };
+          }
+        } catch (error) {
+          return { message: "" };
+        }
+      });
     },
   },
 });
