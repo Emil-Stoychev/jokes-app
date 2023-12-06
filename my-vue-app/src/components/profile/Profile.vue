@@ -242,6 +242,9 @@ div.profileBtns > button {
   border-radius: 4px;
   cursor: pointer;
   margin: 1rem 0;
+  letter-spacing: 2px;
+  font-weight: bolder;
+  font-size: 16px;
 }
 
 div.profileBtns > button:hover {
@@ -250,6 +253,10 @@ div.profileBtns > button:hover {
 
 div.profileBtns > .deleteBtn {
   background-color: red;
+}
+
+div.profileBtns > .deleteBtn:hover {
+  background-color: rgb(209, 3, 3);
 }
 
 
