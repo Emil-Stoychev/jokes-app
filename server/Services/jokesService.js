@@ -25,6 +25,30 @@ const getAllByUser = async (userId) => {
   }
 };
 
+const getJokeForEditById = async (jokeId, userId) => {
+  try {
+    let user = await getUserByJokeAuthor(userId);
+
+    if (!user._id) {
+      return { message: "User not exist!" };
+    }
+
+    let joke = await Joke.findById(jokeId);
+
+    if (!joke._id) {
+      return { message: "Joke not exist!" };
+    }
+
+    if (joke.author != userId) {
+      return { message: "You cannot change this joke!" };
+    }
+
+    return joke;
+  } catch (error) {
+    return { message: "Invalid joke ID!" };
+  }
+};
+
 const getAllLikedByUser = async (userId) => {
   try {
     let user = await getUserByJokeAuthor(userId);
@@ -33,7 +57,7 @@ const getAllLikedByUser = async (userId) => {
       return { message: "User not exist!" };
     }
 
-    return (await Joke.find({ likes: userId }).populate('author')) || [];
+    return (await Joke.find({ likes: userId }).populate("author")) || [];
   } catch (error) {
     console.error(error);
     return error;
@@ -58,6 +82,39 @@ const createJoke = async (container, userId) => {
     });
 
     return createdJoke || {};
+  } catch (error) {
+    console.error(error);
+    return error;
+  }
+};
+
+const editJoke = async (container, jokeId, userId) => {
+  try {
+    let user = await getUserByJokeAuthor(userId);
+
+    if (!user._id) {
+      return { message: "User not exist!" };
+    }
+
+    let joke = await Joke.findById(jokeId);
+
+    if (!joke._id) {
+      return { message: "Joke not exist!" };
+    }
+
+    if (joke.author != userId) {
+      return { message: "You cannot change this joke!" };
+    }
+
+    let editedJoke = await Joke.findByIdAndUpdate(jokeId, {
+      text: container.text,
+      textColor: container.textColor,
+      bgColor: container.bgColor,
+      size: container.size,
+      textAlign: container.textAlign,
+    });
+
+    return editedJoke;
   } catch (error) {
     console.error(error);
     return error;
@@ -112,5 +169,7 @@ module.exports = {
   likeJoke,
   getAllByUser,
   getAllLikedByUser,
+  getJokeForEditById,
+  editJoke,
   deleteJoke,
 };

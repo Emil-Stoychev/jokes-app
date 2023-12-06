@@ -15,6 +15,10 @@ router.get('/getAllLikedJokesByUser/:userId', async (req, res) => {
     res.json(await jokesService.getAllLikedByUser(req.params.userId))
 })
 
+router.get('/getJokeForEditById/:jokeId/:token', authMiddlewareStrict, async (req, res) => {
+    res.json(await jokesService.getJokeForEditById(req.params.jokeId, req.params.user?._id))
+})
+
 router.post('/createJoke/:token', authMiddlewareStrict, async (req, res) => {
     let result = await jokesService.createJoke(req.body, req.params.user?._id)
 
@@ -23,6 +27,12 @@ router.post('/createJoke/:token', authMiddlewareStrict, async (req, res) => {
 
 router.put('/likeJoke/:jokeId/:token', authMiddlewareStrict, async (req, res) => {
     let result = await jokesService.likeJoke(req.params.jokeId, req.params.user?._id)
+
+    return res.status(200).json(result)
+})
+
+router.put('/editJoke/:jokeId/:token', authMiddlewareStrict, async (req, res) => {
+    let result = await jokesService.editJoke(req.body, req.params.jokeId, req.params.user?._id)
 
     return res.status(200).json(result)
 })

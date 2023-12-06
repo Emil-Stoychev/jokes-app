@@ -17,9 +17,25 @@ export const allLikedJokesByUser = (userId) => {
         .then(res => res.json())
 }
 
+export const getJokeForEditById = (jokeId, token) => {
+    return fetch(`${URL}/getJokeForEditById/${jokeId}/${token}`)
+        .then(res => res.json())
+}
+
 export const createJoke = (data, token) => {
     return fetch(`${URL}/createJoke/${token}`, {
         method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    })
+        .then(res => res.json())
+}
+
+export const editJokeById = (data, jokeId, token) => {
+    return fetch(`${URL}/editJoke/${jokeId}/${token}`, {
+        method: "PUT",
         headers: {
             "Content-Type": "application/json"
         },
