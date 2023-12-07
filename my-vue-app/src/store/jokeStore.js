@@ -14,8 +14,8 @@ const useJokeStore = defineStore("joke", {
   state: () => ({}),
   getters: {},
   actions: {
-    getAllJokes() {
-      return getAll().then((res) => {
+    getAllJokes(skip) {
+      return getAll(skip).then((res) => {
         if (!res.message) {
           return res;
         } else {
@@ -32,23 +32,23 @@ const useJokeStore = defineStore("joke", {
         return res;
       });
     },
-    getAllJokesByUser(userId) {
-      return allJokesByUser(userId).then((res) => {
+    getAllJokesByUser(userId, skip) {
+      return allJokesByUser(userId, skip).then((res) => {
         if (!res.message) {
           return res;
         } else {
           console.log(res);
-          return res;
+          return [];
         }
       });
     },
-    getAllLikedJokesByUser(userId) {
-      return allLikedJokesByUser(userId).then((res) => {
+    getAllLikedJokesByUser(userId, skip) {
+      return allLikedJokesByUser(userId, skip).then((res) => {
         if (!res.message) {
           return res;
         } else {
           console.log(res);
-          return res;
+          return [];
         }
       });
     },

@@ -5,14 +5,17 @@ import { useVuelidate } from '@vuelidate/core'
 import { sameAs } from '@vuelidate/validators'
 import { onMounted } from 'vue'
 import { format } from 'timeago.js'
+import { useRoute } from 'vue-router';
 
 export default {
   setup() {
     const authStore = useAuthStore()
     const jokeStore = useJokeStore()
 
+    const route = useRoute()
+
     onMounted(() => {
-      authStore.checkUserByToken();
+      authStore.checkUserByToken(route?.params?.id);
     });
 
     return { authStore, jokeStore, v$: useVuelidate(), format };
@@ -22,7 +25,10 @@ export default {
       jokes: [],
       currentSlide: '',
       deleteToggle: false,
-      confirmText: ''
+      confirmText: '',
+      skipNumber: 0,
+      stopPagination: false,
+      isReqSend: false,
     }
   },
   validations() {
@@ -33,26 +39,53 @@ export default {
   methods: {
     async changeSide(name) {
       this.currentSlide = name
+      this.skipNumber = 0
+      this.stopPagination = false
+      this.isReqSend = false
 
       const userId = this.route?.params?.id ? this.route.params.id : this.authStore.user?._id
 
       if (name == 'myJokes') {
-        const res = await this.jokeStore.getAllJokesByUser(userId);
+        const res = await this.jokeStore.getAllJokesByUser(userId, this.skipNumber);
 
-        if (!res.message) {
-          this.jokes = res
-        } else {
-          console.log(res);
-        }
+        this.jokes = res
       } else {
-        const res = await this.jokeStore.getAllLikedJokesByUser(userId);
+        const res = await this.jokeStore.getAllLikedJokesByUser(userId, this.skipNumber);
 
-        if (!res.message) {
-          this.jokes = res
-        } else {
-          console.log(res);
-        }
+        this.jokes = res
       }
+
+      this.skipNumber += 10;
+    },
+    async loadingMoreJokes() {
+      const container = this.$refs.scrollContainer;
+      const containerHeight = container.offsetHeight;
+      const scrollHeight = container.scrollHeight;
+      const scrollTop = container.scrollTop;
+
+      if (containerHeight + scrollTop >= scrollHeight - 100) {
+        if (this.stopPagination || this.isReqSend) return;
+
+        this.isReqSend = true;
+        const userId = this.route?.params?.id ? this.route.params.id : this.authStore.user?._id
+
+        if (this.currentSlide === 'myJokes') {
+          const res = await this.jokeStore.getAllJokesByUser(userId, this.skipNumber);
+          this.handlePaginationResponse(res);
+        } else {
+          const res = await this.jokeStore.getAllLikedJokesByUser(userId, this.skipNumber);
+          this.handlePaginationResponse(res);
+        }
+
+        this.isReqSend = false;
+      }
+    },
+    handlePaginationResponse(res) {
+      if (res.length === 0) {
+        this.stopPagination = true;
+      }
+      this.skipNumber += 10;
+      this.jokes = [...this.jokes, ...res];
     },
     async deleteJoke(jokeId) {
       const res = await this.jokeStore.deleteCurrJoke(jokeId, this.jokes)
@@ -138,7 +171,7 @@ export default {
       </div>
     </div>
 
-    <div v-show="this.currentSlide != ''" class="posts">
+    <div v-show="this.currentSlide != ''" class="posts" @scroll="loadingMoreJokes" ref="scrollContainer">
 
       <div v-for="joke of this.jokes" :key="joke?._id" class="box">
         <div class="author">
@@ -207,14 +240,15 @@ hr {
 }
 
 @keyframes fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* PROFILE */
@@ -325,6 +359,7 @@ div.input-container>input {
   border-radius: 4px;
   text-align: center;
 }
+
 div.deleteAccBtnsCnt {
   display: flex;
   flex-direction: column;
@@ -379,6 +414,7 @@ div.delete-sub>.deleteBtn:hover {
   opacity: 0;
   animation: fade-in 0.3s ease-out 0.3s forwards;
 }
+
 .box {
   width: 100%;
   max-width: 400px;

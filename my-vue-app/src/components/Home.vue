@@ -14,6 +14,10 @@ export default {
     return {
       allJokes: [],
       type: false,
+      skipNumber: 0,
+      stopPagination: false,
+      isReqSend: false,
+      firstRendering: false,
     }
   },
   methods: {
@@ -75,7 +79,28 @@ export default {
     }
   },
   async mounted() {
-    this.allJokes = await this.jokeStore.getAllJokes() || []
+    if(!this.firstRendering) {
+      this.allJokes = await this.jokeStore.getAllJokes(this.skipNumber) || []
+      this.firstRendering = true
+      this.skipNumber += 10;
+    }
+    window.addEventListener('scroll', async () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+        if (this.stopPagination) return
+        if (this.isReqSend) return
+
+        this.isReqSend = true
+        const moreJokes = await this.jokeStore.getAllJokes(this.skipNumber) || []
+        this.isReqSend = false
+
+        if (moreJokes.length == 0) {
+          this.stopPagination = true
+        }
+        this.skipNumber += 10;
+
+        this.allJokes = [...this.allJokes, ...moreJokes]
+      }
+    });
   }
 }
 
@@ -149,15 +174,17 @@ export default {
 }
 
 @keyframes fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
 .box {
   width: 100%;
   max-width: 400px;

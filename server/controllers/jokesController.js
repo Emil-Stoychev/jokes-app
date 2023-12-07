@@ -3,16 +3,16 @@ const { authMiddlewareStrict } = require('../Middlewares/authMiddlewareStrict')
 
 const jokesService = require('../Services/jokesService')
 
-router.get('/', async (req, res) => {
-    res.json(await jokesService.getAll())
+router.get('/:skip', async (req, res) => {
+    res.json(await jokesService.getAll(req.params.skip))
 })
 
-router.get('/getAllJokesByUser/:userId', async (req, res) => {
-    res.json(await jokesService.getAllByUser(req.params.userId))
+router.get('/getAllJokesByUser/:userId/:skip', async (req, res) => {
+    res.json(await jokesService.getAllByUser(req.params.userId, req.params.skip))
 })
 
-router.get('/getAllLikedJokesByUser/:userId', async (req, res) => {
-    res.json(await jokesService.getAllLikedByUser(req.params.userId))
+router.get('/getAllLikedJokesByUser/:userId/:skip', async (req, res) => {
+    res.json(await jokesService.getAllLikedByUser(req.params.userId, req.params.skip))
 })
 
 router.get('/getJokeForEditById/:jokeId/:token', authMiddlewareStrict, async (req, res) => {

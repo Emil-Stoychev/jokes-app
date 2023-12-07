@@ -1,16 +1,16 @@
 const { Joke } = require("../Models/Joke");
 const { User } = require("../Models/User");
 
-const getAll = async () => {
+const getAll = async (skip = 0, limit = 10) => {
   try {
-    return (await Joke.find().populate("author")) || [];
+    return (await Joke.find().populate("author").skip(Number(skip)).limit(limit)) || [];
   } catch (error) {
     console.error(error);
     return error;
   }
 };
 
-const getAllByUser = async (userId) => {
+const getAllByUser = async (userId, skip = 0, limit = 10) => {
   try {
     let user = await getUserByJokeAuthorId(userId);
 
@@ -18,7 +18,7 @@ const getAllByUser = async (userId) => {
       return { message: "User not exist!" };
     }
 
-    return (await Joke.find({ author: userId })) || [];
+    return (await Joke.find({ author: userId }).skip(Number(skip)).limit(limit)) || [];
   } catch (error) {
     console.error(error);
     return error;
@@ -49,7 +49,7 @@ const getJokeForEditById = async (jokeId, userId) => {
   }
 };
 
-const getAllLikedByUser = async (userId) => {
+const getAllLikedByUser = async (userId, skip = 0, limit = 10) => {
   try {
     let user = await getUserByJokeAuthorId(userId);
 
@@ -57,7 +57,7 @@ const getAllLikedByUser = async (userId) => {
       return { message: "User not exist!" };
     }
 
-    return (await Joke.find({ likes: userId }).populate("author")) || [];
+    return (await Joke.find({ likes: userId }).populate("author").skip(Number(skip)).limit(limit)) || [];
   } catch (error) {
     console.error(error);
     return error;
