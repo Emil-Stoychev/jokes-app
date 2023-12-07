@@ -182,6 +182,7 @@ h2 {
 
 .input-container {
   margin-bottom: 20px;
+  position: relative;
 }
 
 label {
@@ -204,8 +205,12 @@ label {
 }
 
 textarea.longText {
+  min-height: 50px;
+  min-width: 70px;
   height: 120px;
+  max-height: 200px;
   width: 100%;
+  max-width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
