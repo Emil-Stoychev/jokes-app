@@ -75,78 +75,91 @@ h1.right4 {
 }
 
 .zoomBtn {
-  animation: zoom 3s infinite linear alternate-reverse;
+    animation: zoom 3s infinite linear alternate-reverse;
 }
 
 @keyframes zoom {
-  20% {
-    transform: scale(1.1);
-    background-color: #45a049;
-  }
-  100% {
-    transform: scale(1.1);
-    background-color: #45a049;
-  }
+    20% {
+        transform: scale(1.1);
+        background-color: #45a049;
+        box-shadow: 0px 0px 10px green;
+    }
+
+    100% {
+        transform: scale(1.1);
+        background-color: #45a049;
+        box-shadow: 0px 0px 10px green;
+    }
 }
 
 .emojiRotate {
-  animation: rotate 3s infinite linear alternate-reverse;
+    animation: rotate 3s infinite linear alternate-reverse;
 }
 
 @keyframes rotate {
-  0% {
-    transform: translate(0);
-  }
-  20% {
-    transform: translate(-5px, 100px);
-  }
-  40% {
-    transform: translate(5px, -5px);
-    transform: rotate(10deg);
-  }
-  60% {
-    transform: translate(-5px, 5px);
-    transform: rotate(-10deg);
-  }
-  80% {
-    transform: translate(5px, -30px);
-  }
-  100% {
-    transform: translate(0);
-  }
+    0% {
+        transform: translate(0);
+    }
+
+    20% {
+        transform: translate(-5px, 100px);
+    }
+
+    40% {
+        transform: translate(5px, -5px);
+        transform: rotate(10deg);
+    }
+
+    60% {
+        transform: translate(-5px, 5px);
+        transform: rotate(-10deg);
+    }
+
+    80% {
+        transform: translate(5px, -30px);
+    }
+
+    100% {
+        transform: translate(0);
+    }
 }
 
 .glitch {
-  animation: glitch 3s infinite linear alternate-reverse;
+    animation: glitch 3s infinite linear alternate-reverse;
 }
 
 @keyframes glitch {
-  0% {
-    transform: translate(0);
-    color: var(--bg-color-sub);
-  }
-  20% {
-    transform: translate(-5px, 5px);
-    color: rgba(255, 0, 0, 0.154);
-    transform: rotate(5deg);
-  }
-  40% {
-    transform: translate(5px, -5px);
-    color: var(--bg-color-sub);
-  }
-  60% {
-    transform: translate(-5px, 5px);
-    color: var(--bg-color-sub);
-  }
-  80% {
-    transform: translate(5px, -5px);
-    color: rgba(255, 255, 0, 0.154);
-    transform: rotate(-5deg);
-  }
-  100% {
-    transform: translate(0);
-    color: var(--bg-color-sub);
-  }
+    0% {
+        transform: translate(0);
+        color: var(--bg-color-sub);
+    }
+
+    20% {
+        transform: translate(-5px, 5px);
+        color: rgba(255, 0, 0, 0.154);
+        transform: rotate(5deg);
+    }
+
+    40% {
+        transform: translate(5px, -5px);
+        color: var(--bg-color-sub);
+    }
+
+    60% {
+        transform: translate(-5px, 5px);
+        color: var(--bg-color-sub);
+    }
+
+    80% {
+        transform: translate(5px, -5px);
+        color: rgba(255, 255, 0, 0.154);
+        transform: rotate(-5deg);
+    }
+
+    100% {
+        transform: translate(0);
+        color: var(--bg-color-sub);
+    }
 }
 
 @media screen and (max-width: 1000px) {
