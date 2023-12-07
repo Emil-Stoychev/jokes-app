@@ -14,7 +14,8 @@ export default {
             emojies: ['hiding-left.gif', 'hiding-right.gif'],
             leftPosition: `${Math.floor(Math.random() * (48 - 2 + 1) + 2)}rem`,
             rightPosition: `${Math.floor(Math.random() * (48 - 2 + 1) + 2)}rem`,
-            isChanged: false
+            isChanged: false,
+            isLogoClicked: false
         }
     },
     methods: {
@@ -27,6 +28,15 @@ export default {
             this.authStore.logoutUser();
             this.$router.push('/login')
         },
+        rotateLogo(event) {
+            if (!this.isLogoClicked) {
+                this.isLogoClicked = true
+
+                setTimeout(() => {
+                    this.isLogoClicked = false
+                }, 1500);
+            }
+        }
     },
     mounted() {
         this.authStore.checkUserByToken()
@@ -40,14 +50,18 @@ export default {
     <img @click="hideAndChangePos" v-else class="hiding-right" :style="{ bottom: rightPosition }"
         :src="`/images/${emojies[1]}`" />
     <nav>
-        <img src="https://i.pinimg.com/originals/03/3f/59/033f59d49fcf7135adb4e0424eea109b.png" />
+        <img @click="rotateLogo" src="https://i.pinimg.com/originals/03/3f/59/033f59d49fcf7135adb4e0424eea109b.png" :class="this.isLogoClicked && 'rotateLogo'" />
         <ul>
             <router-link :to="{ path: '/' }" :class="{ 'selected': route.path === '/' }">Home</router-link>
-            <router-link v-show="this.authStore.isAuthenticated" :to="{ path: '/create' }" :class="{ 'selected': route.path === '/create' }">Create</router-link>
-            <router-link v-show="this.authStore.isAuthenticated" :to="{ path: '/profile' }" :class="{ 'selected': route.path === '/profile' }">Profile</router-link>
+            <router-link v-show="this.authStore.isAuthenticated" :to="{ path: '/create' }"
+                :class="{ 'selected': route.path === '/create' }">Create</router-link>
+            <router-link v-show="this.authStore.isAuthenticated" :to="{ path: '/profile' }"
+                :class="{ 'selected': route.path === '/profile' }">Profile</router-link>
             <router-link :to="{ path: '/about' }" :class="{ 'selected': route.path === '/about' }">About</router-link>
-            <router-link v-show="!this.authStore.isAuthenticated" :to="{ path: '/login' }" :class="{ 'selected': route.path === '/login' }">Login</router-link>
-            <router-link v-show="this.authStore.isAuthenticated" :to="{ path: '/login' }" @click="logout">Logout</router-link>
+            <router-link v-show="!this.authStore.isAuthenticated" :to="{ path: '/login' }"
+                :class="{ 'selected': route.path === '/login' }">Login</router-link>
+            <router-link v-show="this.authStore.isAuthenticated" :to="{ path: '/login' }"
+                @click="logout">Logout</router-link>
         </ul>
     </nav>
 </template>
@@ -79,13 +93,30 @@ nav {
     background-color: var(--bg-color-sub);
     border-bottom: var(--border-main-color);
     max-width: var(--max-width);
+    z-index: 100;
 }
 
 img {
     object-fit: cover;
     width: 10rem;
+    transition: all 300ms ease-in-out;
 }
 
+.rotateLogo {
+    animation: rotate 0.5s infinite linear alternate-reverse;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    border-radius: 10rem;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
 
 ul {
     display: flex;
@@ -105,6 +136,11 @@ ul>a {
     color: white;
     position: relative;
     overflow: hidden;
+    transition: all 150ms ease-in-out;
+}
+
+ul>a:hover {
+    transform: scale(1.1);
 }
 
 ul>a::after {
@@ -133,5 +169,4 @@ ul>a.selected::after {
         gap: 2rem;
         padding: 0;
     }
-}
-</style>
+}</style>

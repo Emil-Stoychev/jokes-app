@@ -22,6 +22,20 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
+    opacity: 0;
+    animation: fade-in 0.3s ease-out 0.3s forwards;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .middle-section {
@@ -40,11 +54,13 @@
 h1.left4 {
     left: -2rem;
     color: var(--bg-color-sub);
+    z-index: -1;
 }
 
 h1.right4 {
     right: -2rem;
     color: var(--bg-color-sub);
+    z-index: -1;
 }
 
 .notFoundEmoji {

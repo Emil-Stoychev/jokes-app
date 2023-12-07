@@ -43,7 +43,7 @@ export default {
       </ul>
     </div>
 
-    <p>Join me on this laughter journey, explore my favorite 🤩 <span class="company-name">jokes</span>, and let's turn
+    <p class="p-down-el">Join me on this laughter journey, explore my favorite 🤩 <span class="company-name">jokes</span>, and let's turn
       FunnyJokes into a go-to spot for anyone
       in need of a good laugh! 🚀</p>
 
@@ -63,18 +63,47 @@ export default {
   padding: 20px;
 }
 
-h1 {
-  font-size: 2.5rem;
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-p {
+h1,
+p,
+.team-section,
+.container-btn-laugh {
+    opacity: 0;
+}
+
+h1 {
+    font-size: 2.5rem;
+    animation: fade-in 1s ease-out forwards;
+}
+
+.about-container > p:first-of-type {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    animation: fade-in 1s ease-out 0.5s forwards;
+}
+
+.p-down-el {
   font-size: 1.2rem;
-  line-height: 1.6;
+    line-height: 1.6;
+    animation: fade-in 1s ease-out 1.5s forwards;
 }
 
 .team-section {
-  margin-top: 20px;
+    margin-top: 20px;
+    animation: fade-in 1s ease-out 1s forwards;
 }
+
+
 
 h2 {
   font-size: 2rem;
@@ -93,6 +122,7 @@ li {
 .container-btn-laugh {
   margin: 4rem 0 1rem 0;
   position: relative;
+  animation: fade-in 1s ease-out 2s forwards;
 }
 
 .random-laughter-button {

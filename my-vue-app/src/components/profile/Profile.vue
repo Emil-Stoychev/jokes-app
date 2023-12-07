@@ -202,8 +202,20 @@ hr {
   border: var(--border-main-color);
   margin: 1rem;
   border-radius: 1rem;
+  opacity: 0;
+  animation: fade-in 0.3s ease-out 0.3s forwards;
 }
 
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
 /* PROFILE */
 .profile {
@@ -364,8 +376,9 @@ div.delete-sub>.deleteBtn:hover {
   padding: 2rem;
   height: 900px;
   overflow-y: auto;
+  opacity: 0;
+  animation: fade-in 0.3s ease-out 0.3s forwards;
 }
-
 .box {
   width: 100%;
   max-width: 400px;
