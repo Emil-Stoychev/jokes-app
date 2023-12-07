@@ -8,18 +8,18 @@ let secret = process.env.secret;
 
 const getUserByToken = async (userId) => {
   try {
-    let userAcc = await User.findById(userId);
+    let user = await User.findById(userId);
 
-    if (!userAcc) {
+    if (!user) {
       return { message: "User not exist!" };
     }
 
     return {
-      _id: userAcc._id,
-      username: userAcc.username,
-      rank: userAcc.rank,
-      avatar: userAcc.avatar,
-      createdAt: userAcc.createdAt
+      _id: user._id,
+      username: user.username,
+      rank: user.rank,
+      avatar: user.avatar,
+      createdAt: user.createdAt
     };
   } catch (error) {
     return error;
@@ -59,11 +59,11 @@ const login = async (data) => {
 
     return {
       token: result,
-      _id: userAcc._id,
-      username: userAcc.username,
-      rank: userAcc.rank,
-      avatar: userAcc.avatar,
-      createdAt: userAcc.createdAt
+      _id: user._id,
+      username: user.username,
+      rank: user.rank,
+      avatar: user.avatar,
+      createdAt: user.createdAt
     };
   } catch (error) {
     return error;
@@ -132,11 +132,11 @@ const editProfile = async (data, userId) => {
 
     return {
       token: result,
-      _id: userAcc._id,
-      username: userAcc.username,
-      rank: userAcc.rank,
-      avatar: userAcc.avatar,
-      createdAt: userAcc.createdAt
+      _id: user._id,
+      username: user.username,
+      rank: user.rank,
+      avatar: user.avatar,
+      createdAt: user.createdAt
     };
   } catch (error) {
     return error;

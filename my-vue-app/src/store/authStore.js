@@ -41,6 +41,7 @@ const useAuthStore = defineStore("auth", {
     },
     loginUser(dataInputs) {
       return login(dataInputs).then((res) => {
+        console.log(res);
         try {
           if (!res.message) {
             this.user = res;
