@@ -8,6 +8,7 @@ import About from '../components/about/About.vue'
 import Login from '../components/login/Login.vue'
 import Register from '../components/register/Register.vue'
 import EditProfile from '../components/editProfile/EditProfile.vue'
+import NotFound from '../components/core/NotFound.vue'
 
 const routes = [
     { path: '/', component: Home },
@@ -19,6 +20,7 @@ const routes = [
     { path: '/about', component: About },
     { path: '/login', component: Login },
     { path: '/register', component: Register },
+    { path: '/:pathMatch(.*)*', component: NotFound}
 ]
 
 const router = createRouter({
