@@ -11,6 +11,7 @@ const useAuthStore = defineStore("auth", {
   state: () => ({
     user: {},
     isAuthenticated: false,
+    isLoading: false,
   }),
   getters: {},
   actions: {
@@ -115,6 +116,12 @@ const useAuthStore = defineStore("auth", {
         }
       );
     },
+    startLoading() {
+      this.isLoading = true
+    },
+    stopLoading() {
+      this.isLoading = false
+    }
   },
 });
 

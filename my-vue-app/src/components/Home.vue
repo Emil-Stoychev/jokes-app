@@ -13,7 +13,7 @@ export default {
   data() {
     return {
       allJokes: [],
-      type: false
+      type: false,
     }
   },
   methods: {

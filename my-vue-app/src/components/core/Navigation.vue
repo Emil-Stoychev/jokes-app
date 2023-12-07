@@ -1,11 +1,16 @@
 <script>
 import { useRoute } from 'vue-router';
 import useAuthStore from '../../store/authStore';
+import { watch } from 'vue';
 
 export default {
     setup() {
         const authStore = useAuthStore()
         const route = useRoute();
+
+        watch(() => {
+            authStore.isLoading;
+        })
 
         return { authStore, route }
     },
@@ -28,7 +33,7 @@ export default {
             this.authStore.logoutUser();
             this.$router.push('/login')
         },
-        rotateLogo(event) {
+        rotateLogo() {
             if (!this.isLogoClicked) {
                 this.isLogoClicked = true
 
@@ -49,8 +54,9 @@ export default {
         :src="`/images/${emojies[0]}`" />
     <img @click="hideAndChangePos" v-else class="hiding-right" :style="{ bottom: rightPosition }"
         :src="`/images/${emojies[1]}`" />
-    <nav>
-        <img @click="rotateLogo" src="https://i.pinimg.com/originals/03/3f/59/033f59d49fcf7135adb4e0424eea109b.png" :class="this.isLogoClicked && 'rotateLogo'" />
+    <nav :class="this.authStore.isLoading && 'loading'">
+        <img @click="rotateLogo" src="https://i.pinimg.com/originals/03/3f/59/033f59d49fcf7135adb4e0424eea109b.png"
+            :class="this.isLogoClicked && 'rotateLogo'" />
         <ul>
             <router-link :to="{ path: '/' }" :class="{ 'selected': route.path === '/' }">Home</router-link>
             <router-link v-show="this.authStore.isAuthenticated" :to="{ path: '/create' }"
@@ -67,6 +73,7 @@ export default {
 </template>
 
 <style scoped>
+
 /* ABSOLUTE EMOJIES */
 
 .hiding-left {
@@ -94,12 +101,44 @@ nav {
     border-bottom: var(--border-main-color);
     max-width: var(--max-width);
     z-index: 100;
+    transition: border-color 0.5s ease;
+    background-position: 0 0;
 }
+
+nav.loading {
+    animation: loadingAnimation 6s infinite linear;
+}
+
+@keyframes loadingAnimation {
+  0% {
+    border-bottom: 2px solid red;
+    background-position: 100% 0;
+  }
+
+  25% {
+    border-bottom: 2px solid yellow;
+  }
+
+  50% {
+    border-bottom: 2px solid green;
+  }
+
+  75% {
+    border-bottom: 2px solid blue;
+  }
+
+  100% {
+    border-bottom: 2px solid red;
+    background-position: 0 0;
+  }
+}
+
 
 img {
     object-fit: cover;
     width: 10rem;
     transition: all 300ms ease-in-out;
+    cursor: pointer;
 }
 
 .rotateLogo {
@@ -169,4 +208,5 @@ ul>a.selected::after {
         gap: 2rem;
         padding: 0;
     }
-}</style>
+}
+</style>
