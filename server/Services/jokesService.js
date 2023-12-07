@@ -3,7 +3,11 @@ const { User } = require("../Models/User");
 
 const getAll = async (skip = 0, limit = 10) => {
   try {
-    return (await Joke.find().populate("author").skip(Number(skip)).limit(limit)) || [];
+    return (await Joke.find()
+      .populate("author")
+      .sort({ createdAt: -1 })
+      .skip(Number(skip))
+      .limit(limit)) || [];
   } catch (error) {
     console.error(error);
     return error;
@@ -18,7 +22,10 @@ const getAllByUser = async (userId, skip = 0, limit = 10) => {
       return { message: "User not exist!" };
     }
 
-    return (await Joke.find({ author: userId }).skip(Number(skip)).limit(limit)) || [];
+    return (await Joke.find({ author: userId })
+    .sort({ createdAt: -1 })
+    .skip(Number(skip))
+    .limit(limit)) || [];
   } catch (error) {
     console.error(error);
     return error;
@@ -57,7 +64,11 @@ const getAllLikedByUser = async (userId, skip = 0, limit = 10) => {
       return { message: "User not exist!" };
     }
 
-    return (await Joke.find({ likes: userId }).populate("author").skip(Number(skip)).limit(limit)) || [];
+    return (await Joke.find({ likes: userId })
+      .populate("author")
+      .sort({ createdAt: -1 })
+      .skip(Number(skip))
+      .limit(limit)) || [];
   } catch (error) {
     console.error(error);
     return error;
