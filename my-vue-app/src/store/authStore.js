@@ -17,7 +17,7 @@ const useAuthStore = defineStore("auth", {
     checkUserByToken() {
       const token = localStorage.getItem("sessionStorage");
       if (token) {
-        getUserByToken(token).then((res) => {
+        return getUserByToken(token).then((res) => {
           try {
             if (!res.message) {
               this.user = res;
@@ -41,7 +41,6 @@ const useAuthStore = defineStore("auth", {
     },
     loginUser(dataInputs) {
       return login(dataInputs).then((res) => {
-        console.log(res);
         try {
           if (!res.message) {
             this.user = res;

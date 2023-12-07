@@ -82,7 +82,7 @@ export default {
 </script>
 
 <template>
-  <div class="filteringBtns">
+  <div class="filteringBtns" v-if="this.allJokes.length > 0">
     <button @click="sortingBy('created')">BY CREATED</button>
     <button @click="sortingBy('likes')">BY LIKES</button>
     <button @click="sortingBy('text')">BY TEXT LENGTH</button>
