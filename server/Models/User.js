@@ -14,6 +14,17 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    blacklisted: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
+    likedStars: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
+    ownStars: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
+    ownJokesCount: {
+        type: Number,
+        default: 0
+    },
+    likedJokesCount: {
+        type: Number,
+        default: 0
+    },
     avatar: {
         type: String,
         default: 'profile.gif'

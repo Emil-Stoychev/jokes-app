@@ -5,6 +5,7 @@ import {
   register,
   editUserAcc,
   deleteAccount,
+  toggleStarReq
 } from "../services/authService";
 
 const useAuthStore = defineStore("auth", {
@@ -115,6 +116,24 @@ const useAuthStore = defineStore("auth", {
           }
         }
       );
+    },
+    toggleStar(jokeAuthor) {
+      return toggleStarReq(
+        jokeAuthor,
+        localStorage.getItem("sessionStorage")
+      ).then((res) => {
+        try {
+          if (!res.message) {
+            this.user = res;
+            return res;
+          } else {
+            return { message: "" };
+          }
+        } catch (error) {
+          console.log(error);
+          return { message: "" };
+        }
+      });
     },
     startLoading() {
       this.isLoading = true

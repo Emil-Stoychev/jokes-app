@@ -36,6 +36,15 @@ export const editUserAcc = (data, token) => {
   }).then((res) => res.json());
 };
 
+export const toggleStarReq = (jokeAuthor, token) => {
+  return fetch(`${URL}/toggleStar/${jokeAuthor}/${token}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(),
+  }).then((res) => res.json());
+};
 
 export const deleteAccount = (token) => {
   return fetch(`${URL}/deleteAccount/${token}`, {

@@ -19,7 +19,12 @@ const getUserByToken = async (userId) => {
       username: user.username,
       rank: user.rank,
       avatar: user.avatar,
-      createdAt: user.createdAt
+      createdAt: user.createdAt,
+      ownJokesCount: user?.ownJokesCount,
+      likedJokesCount: user?.likedJokesCount,
+      ownStars: user?.ownStars,
+      likedStars: user?.likedStars,
+      blacklisted: user?.blacklisted,
     };
   } catch (error) {
     return error;
@@ -63,8 +68,53 @@ const login = async (data) => {
       username: user.username,
       rank: user.rank,
       avatar: user.avatar,
-      createdAt: user.createdAt
+      createdAt: user.createdAt,
+      ownJokesCount: user?.ownJokesCount,
+      likedJokesCount: user?.likedJokesCount,
+      ownStars: user?.ownStars,
+      likedStars: user?.likedStars,
+      blacklisted: user?.blacklisted,
     };
+  } catch (error) {
+    return error;
+  }
+};
+
+const toggleStar = async (jokeAuthor, userId) => {
+  try {
+    let jokeUser = await User.findById(jokeAuthor);
+    let user = await User.findById(userId);
+
+    if (!user) {
+      return { message: "User is not exist!" };
+    }
+
+    if (!jokeUser) {
+      return { message: "Joke author is not exist!" };
+    }
+
+    if (jokeUser.ownStars.includes(userId)) {
+      jokeUser.ownStars = jokeUser.ownStars.filter((x) => x != userId);
+    } else {
+      jokeUser.ownStars.push(userId);
+      if (!jokeUser.blacklisted.includes(userId)) {
+        jokeUser.blacklisted.push(userId);
+
+        if (jokeUser.blacklisted.length % 100 === 0) {
+          jokeUser.rank++;
+        }
+      }
+    }
+
+    if (user.likedStars.includes(jokeAuthor)) {
+      user.likedStars = user.likedStars.filter((x) => x != jokeAuthor);
+    } else {
+      user.likedStars.push(jokeAuthor);
+    }
+
+    jokeUser.save();
+    user.save();
+    return user;
   } catch (error) {
     return error;
   }
@@ -136,7 +186,12 @@ const editProfile = async (data, userId) => {
       username: user.username,
       rank: user.rank,
       avatar: user.avatar,
-      createdAt: user.createdAt
+      createdAt: user.createdAt,
+      ownJokesCount: user?.ownJokesCount,
+      likedJokesCount: user?.likedJokesCount,
+      ownStars: user?.ownStars,
+      likedStars: user?.likedStars,
+      blacklisted: user?.blacklisted,
     };
   } catch (error) {
     return error;
@@ -149,10 +204,10 @@ const deleteProfile = async (userId) => {
 
     if (!user?._id) return { message: "User not found!" };
 
-    await deleteJokesByAuthorId(userId)
-    await User.findByIdAndDelete(userId)
+    await deleteJokesByAuthorId(userId);
+    await User.findByIdAndDelete(userId);
 
-    return {}
+    return {};
   } catch (error) {
     return error;
   }
@@ -164,4 +219,5 @@ module.exports = {
   register,
   editProfile,
   deleteProfile,
+  toggleStar,
 };

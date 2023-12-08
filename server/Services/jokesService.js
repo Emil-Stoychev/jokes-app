@@ -3,11 +3,13 @@ const { User } = require("../Models/User");
 
 const getAll = async (skip = 0, limit = 10) => {
   try {
-    return (await Joke.find()
-      .populate("author")
-      .sort({ createdAt: -1 })
-      .skip(Number(skip))
-      .limit(limit)) || [];
+    return (
+      (await Joke.find()
+        .populate("author")
+        .sort({ createdAt: -1 })
+        .skip(Number(skip))
+        .limit(limit)) || []
+    );
   } catch (error) {
     console.error(error);
     return error;
@@ -22,10 +24,12 @@ const getAllByUser = async (userId, skip = 0, limit = 10) => {
       return { message: "User not exist!" };
     }
 
-    return (await Joke.find({ author: userId })
-    .sort({ createdAt: -1 })
-    .skip(Number(skip))
-    .limit(limit)) || [];
+    return (
+      (await Joke.find({ author: userId })
+        .sort({ createdAt: -1 })
+        .skip(Number(skip))
+        .limit(limit)) || []
+    );
   } catch (error) {
     console.error(error);
     return error;
@@ -64,11 +68,13 @@ const getAllLikedByUser = async (userId, skip = 0, limit = 10) => {
       return { message: "User not exist!" };
     }
 
-    return (await Joke.find({ likes: userId })
-      .populate("author")
-      .sort({ createdAt: -1 })
-      .skip(Number(skip))
-      .limit(limit)) || [];
+    return (
+      (await Joke.find({ likes: userId })
+        .populate("author")
+        .sort({ createdAt: -1 })
+        .skip(Number(skip))
+        .limit(limit)) || []
+    );
   } catch (error) {
     console.error(error);
     return error;
@@ -89,8 +95,10 @@ const createJoke = async (container, userId) => {
       fontWeight: container.fontWeight,
       fontStyle: container.fontStyle,
       letterSpacing: container.letterSpacing,
-      fontFamily: container.fontFamily
+      fontFamily: container.fontFamily,
     });
+
+    await addNewJokeCountToUser(userId, "ownJokes");
 
     return createdJoke || {};
   } catch (error) {
@@ -126,7 +134,7 @@ const editJoke = async (container, jokeId, userId) => {
       fontWeight: container.fontWeight,
       fontStyle: container.fontStyle,
       letterSpacing: container.letterSpacing,
-      fontFamily: container.fontFamily
+      fontFamily: container.fontFamily,
     });
 
     return editedJoke;
@@ -138,12 +146,15 @@ const editJoke = async (container, jokeId, userId) => {
 
 const deleteJokesByAuthorId = async (author) => {
   try {
-    return await Joke.deleteMany({ author })
+    let deletedJoke = await Joke.deleteMany({ author });
+    await removeOneJokeCountToUser(author, "ownJokes", 0);
+
+    return deletedJoke;
   } catch (error) {
     console.log(error);
-    return error
+    return error;
   }
-}
+};
 
 const likeJoke = async (jokeId, userId) => {
   try {
@@ -159,7 +170,9 @@ const likeJoke = async (jokeId, userId) => {
 
     if (currJoke.likes.includes(userId)) {
       await Joke.updateOne({ _id: jokeId }, { $pull: { likes: userId } });
+      await removeOneJokeCountToUser(userId, "likedJokes");
     } else {
+      await addNewJokeCountToUser(userId, "likedJokes");
       await Joke.updateOne({ _id: jokeId }, { $push: { likes: userId } });
     }
 
@@ -181,13 +194,14 @@ const deleteJoke = async (jokeId, userId) => {
 
     await Joke.findByIdAndDelete(jokeId);
 
+    await removeOneJokeCountToUser(userId, "ownJokes");
+
     return joke;
   } catch (error) {
     console.error(error);
     return error;
   }
 };
-
 
 // USER FUNC
 
@@ -205,6 +219,52 @@ const getUserByJokeAuthorId = async (userId) => {
   }
 };
 
+const addNewJokeCountToUser = async (userId, option) => {
+  try {
+    let userAcc = await User.findById(userId);
+
+    if (!userAcc) {
+      return { message: "User not exist!" };
+    }
+
+    if (option === "ownJokes") {
+      userAcc.ownJokesCount++;
+    } else if (option === "likedJokes") {
+      userAcc.likedJokesCount++;
+    }
+    userAcc.save();
+
+    return userAcc;
+  } catch (error) {
+    return error;
+  }
+};
+
+const removeOneJokeCountToUser = async (userId, option, num) => {
+  try {
+    let userAcc = await User.findById(userId);
+
+    if (!userAcc) {
+      return { message: "User not exist!" };
+    }
+
+    if (num) {
+      userAcc.ownJokesCount = 0;
+    } else {
+      if (option === "ownJokes") {
+        userAcc.ownJokesCount--;
+      } else if (option === "likedJokes") {
+        userAcc.likedJokesCount--;
+      }
+    }
+    userAcc.save();
+
+    return userAcc;
+  } catch (error) {
+    return error;
+  }
+};
+
 module.exports = {
   getAll,
   createJoke,
@@ -214,5 +274,5 @@ module.exports = {
   getJokeForEditById,
   editJoke,
   deleteJoke,
-  deleteJokesByAuthorId
+  deleteJokesByAuthorId,
 };

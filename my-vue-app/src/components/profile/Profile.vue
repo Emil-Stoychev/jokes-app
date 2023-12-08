@@ -92,17 +92,24 @@ export default {
 
       if (!res.message) {
         this.jokes = res
+        this.authStore.user.ownJokesCount--
       } else {
         return console.log(res);
       }
     },
-    async likeToggle(jokeId) {
+    async likeToggle(jokeId, option) {
       const res = await this.jokeStore.likeJokeToggle(jokeId, this.jokes)
+
+      if (Boolean(option)) {
+        this.authStore.user.likedJokesCount--
+      } else {
+        this.authStore.user.likedJokesCount++
+      }
 
       if (!!res.message) {
         this.jokes = res
       } else {
-        return console.log(res);
+        return res
       }
     },
     goToEdit(jokeId) {
@@ -111,6 +118,10 @@ export default {
     deleteToggleFn() {
       this.confirmText = ''
       this.deleteToggle = !this.deleteToggle
+    },
+    async toggleStar(jokeAuthor) {
+      console.log(jokeAuthor);
+      await this.authStore.toggleStar(jokeAuthor)
     },
     async deleteAccFn() {
       const validated = await this.v$.$validate()
@@ -143,9 +154,12 @@ export default {
     <div v-show="this.currentSlide == ''" class="profileDetails">
       <h2 class="detailsHeader">DETAILS INFORMATION</h2>
 
-      <h2 class="detailsHeader">My jokes: 0</h2>
-      <h2 class="detailsHeader">Liked jokes: 2</h2>
-      <h2 class="detailsHeader">Created: {{ format(this.authStore.user?.createdAt) }}</h2>
+      <div class="detailsHeaderDiv">
+        <h2 class="detailsHeader">Stars: <span> {{ this.authStore.user?.blacklisted?.length || 0 }} </span></h2>
+        <h2 class="detailsHeader">My jokes: <span> {{ this.authStore.user?.ownJokesCount || 0 }} </span></h2>
+        <h2 class="detailsHeader">Liked jokes: <span> {{ this.authStore.user?.likedJokesCount || 0 }} </span></h2>
+        <h2 class="detailsHeader">Created: <span> {{ format(this.authStore.user?.createdAt) }} </span></h2>
+      </div>
 
       <div class="profileBtns">
         <button v-show="!this.deleteToggle" type="button"
@@ -176,6 +190,13 @@ export default {
       <div v-for="joke of this.jokes" :key="joke?._id" class="box">
         <div class="author">
           <img v-if="this.currentSlide != 'myJokes'" class="emojie" :src="`/images/${joke.author?.avatar}`" />
+          <svg v-show="this.authStore?.user?._id != joke?.author" @click="toggleStar(joke.author?._id)" class="star"
+            xmlns="http://www.w3.org/2000/svg"
+            :fill="this.authStore.user?.likedStars?.includes(joke.author?._id) ? 'yellow' : 'white'" height="28"
+            width="28" viewBox="0 0 576 512">
+            <path
+              d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z" />
+          </svg>
           <div class="authorInfo">
             <h2>{{ joke.author?.username }}</h2>
             <h3 v-if="this.currentSlide != 'myJokes'">Rank: {{ joke.author?.rank }}</h3>
@@ -191,7 +212,8 @@ export default {
         </div>
 
         <div class="btns">
-          <button type="button" @click="likeToggle(joke?._id)">
+          <button type="button"
+            @click="likeToggle(joke?._id, joke.likes?.find(x => x == this.authStore.user?._id) ? true : false)">
             <svg xmlns="http://www.w3.org/2000/svg"
               :fill="joke.likes?.find(x => x == this.authStore.user?._id) ? 'yellow' : 'white'" height="28" width="28"
               viewBox="0 0 512 512">
@@ -289,6 +311,33 @@ hr {
   margin: 0;
   padding: 0;
   text-align: left;
+}
+
+.star {
+  position: absolute;
+  margin: 0 auto;
+  width: 100%;
+  cursor: pointer;
+}
+
+.detailsHeader {
+  letter-spacing: 1px;
+  margin: 0;
+  padding: 0;
+}
+
+.detailsHeaderDiv {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  margin: 2rem auto;
+  gap: 1rem;
+}
+
+.detailsHeaderDiv>.detailsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 /* SLIDER CONTAINER */
@@ -575,4 +624,11 @@ div.btns>button svg.liked {
     font-size: 18px;
   }
 }
+
+@media screen and (max-width: 350px) {
+  .detailsHeaderDiv {
+  width: 95%;
+}
+}
+
 </style>

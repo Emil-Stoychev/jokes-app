@@ -25,6 +25,12 @@ router.put('/editProfile/:token', authMiddlewareStrict, async (req, res) => {
     res.json(result)
 })
 
+router.put('/toggleStar/:jokeAuthor/:token', authMiddlewareStrict, async (req, res) => {
+    let result = await authService.toggleStar(req.params.jokeAuthor, req.params.user?._id)
+
+    res.json(result)
+})
+
 router.delete('/deleteAccount/:token', authMiddlewareStrict, async (req, res) => {
     let result = await authService.deleteProfile(req.params.user?._id)
 

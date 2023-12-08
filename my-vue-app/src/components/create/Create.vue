@@ -59,7 +59,6 @@ export default {
         this.isLoading = false
         if (createdJoke.message != undefined) {
           this.currentEmojie = this.emojies[4]
-          console.log(createdJoke);
         } else {
           this.currentEmojie = this.emojies[5]
           this.$router.push('/')
