@@ -190,7 +190,7 @@ export default {
       <div v-for="joke of this.jokes" :key="joke?._id" class="box">
         <div class="author">
           <img v-if="this.currentSlide != 'myJokes'" class="emojie" :src="`/images/${joke.author?.avatar}`" />
-          <svg v-show="this.authStore?.user?._id != joke?.author" @click="toggleStar(joke.author?._id)" class="star"
+          <svg v-show="this.authStore?.user?._id && this.authStore?.user?._id != joke?.author" @click="toggleStar(joke.author?._id)" class="star"
             xmlns="http://www.w3.org/2000/svg"
             :fill="this.authStore.user?.likedStars?.includes(joke.author?._id) ? 'yellow' : 'white'" height="28"
             width="28" viewBox="0 0 576 512">
@@ -316,8 +316,9 @@ hr {
 .star {
   position: absolute;
   margin: 0 auto;
-  width: 100%;
+  left: 50%;
   cursor: pointer;
+  z-index: 2;
 }
 
 .detailsHeader {
