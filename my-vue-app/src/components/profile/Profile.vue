@@ -29,6 +29,7 @@ export default {
       skipNumber: 0,
       stopPagination: false,
       isReqSend: false,
+      like: false
     }
   },
   validations() {
@@ -100,6 +101,13 @@ export default {
     async likeToggle(jokeId, option) {
       const res = await this.jokeStore.likeJokeToggle(jokeId, this.jokes)
 
+      if(!this.like) {
+        this.like = true
+
+        setTimeout(() => {
+          this.like = false
+        }, 1300);
+      }
       if (Boolean(option)) {
         this.authStore.user.likedJokesCount--
       } else {
@@ -212,7 +220,7 @@ export default {
         </div>
 
         <div class="btns">
-          <button type="button"
+          <button type="button" :class="this.like && 'likeBtn'"
             @click="likeToggle(joke?._id, joke.likes?.find(x => x == this.authStore.user?._id) ? true : false)">
             <svg xmlns="http://www.w3.org/2000/svg"
               :fill="joke.likes?.find(x => x == this.authStore.user?._id) ? 'yellow' : 'white'" height="28" width="28"
@@ -319,6 +327,11 @@ hr {
   left: 50%;
   cursor: pointer;
   z-index: 2;
+  transition: all 300ms ease-in-out;
+}
+
+.star:hover {
+  transform: scale(1.1) rotate(45deg);
 }
 
 .detailsHeader {
@@ -551,6 +564,37 @@ div.btns-sub>button {
   border: none;
   background-color: transparent;
   position: relative;
+}
+
+.likeBtn {
+  animation: likeAnim 1.3s infinite linear;
+}
+
+@keyframes likeAnim {
+  0% {
+    transform: scale(1.1) rotate(10deg);
+  }
+
+  20% {
+    transform: scale(1.1) rotate(-10deg);
+  }
+
+  40% {
+    transform: scale(1.1) rotate(10deg);
+  }
+
+  60% {
+    transform: scale(1.1) rotate(-10deg);
+  }
+
+  80% {
+    transform: scale(1.1) rotate(10deg);
+  }
+
+
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
 }
 
 p.likesCount {
