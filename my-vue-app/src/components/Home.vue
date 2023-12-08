@@ -127,7 +127,10 @@ export default {
       </div>
 
       <div class="textCnt" :style="{ backgroundColor: joke.bgColor }">
-        <p :style="{ color: joke.textColor, textAlign: joke.textAlign, fontSize: joke.size + 'rem' }">{{ joke.text }}</p>
+        <p 
+        :style="{ color: joke.textColor, fontSize: `${joke.size}rem`, textAlign: joke.textAlign, fontWeight: joke.fontWeight, fontStyle: joke.fontStyle, fontFamily: joke.fontFamily, letterSpacing: `${joke.letterSpacing}px` }"
+        >{{ joke.text }}</p>
+
       </div>
 
       <div class="btns">

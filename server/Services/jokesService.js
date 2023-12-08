@@ -86,6 +86,10 @@ const createJoke = async (container, userId) => {
       bgColor: container.bgColor,
       size: container.size,
       textAlign: container.textAlign,
+      fontWeight: container.fontWeight,
+      fontStyle: container.fontStyle,
+      letterSpacing: container.letterSpacing,
+      fontFamily: container.fontFamily
     });
 
     return createdJoke || {};
@@ -119,6 +123,10 @@ const editJoke = async (container, jokeId, userId) => {
       bgColor: container.bgColor,
       size: container.size,
       textAlign: container.textAlign,
+      fontWeight: container.fontWeight,
+      fontStyle: container.fontStyle,
+      letterSpacing: container.letterSpacing,
+      fontFamily: container.fontFamily
     });
 
     return editedJoke;

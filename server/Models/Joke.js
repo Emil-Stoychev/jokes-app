@@ -9,6 +9,10 @@ const jokeSchema = new mongoose.Schema({
     bgColor: String,
     size: Number,
     textAlign: String,
+    fontWeight: String,
+    fontStyle: String,
+    letterSpacing: Number,
+    fontFamily: String,
     author: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     likes: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
 },

@@ -16,7 +16,11 @@ export default {
         textColor: '#FFFFFF',
         bgColor: '#3b3b3b',
         size: 1,
-        textAlign: 'start'
+        textAlign: 'start',
+        fontWeight: 'normal',
+        fontStyle: 'normal',
+        letterSpacing: 0,
+        fontFamily: 'Arial, sans-serif'
       },
       emojies: ['default.gif', 'thinking.gif', 'hide-pass.png', 'show-pass.gif', 'wrong.gif', 'ready.gif', 'loading.gif'],
       currentEmojie: null,
@@ -45,7 +49,11 @@ export default {
         textColor: currJoke.textColor,
         bgColor: currJoke.bgColor,
         size: currJoke.size,
-        textAlign: currJoke.textAlign
+        textAlign: currJoke.textAlign,
+        fontWeight: currJoke.fontWeight,
+        fontStyle: currJoke.fontStyle,
+        letterSpacing: currJoke.letterSpacing,
+        fontFamily: currJoke.fontFamily
       }
     } else {
       console.log(currJoke);
@@ -106,7 +114,7 @@ export default {
       <div class="input-container">
         <label for="text">Text</label>
         <textarea type="text" id="text" class="longText"
-          :style="{ color: dataInputs.textColor, backgroundColor: dataInputs.bgColor, fontSize: `${dataInputs.size}rem`, textAlign: dataInputs.textAlign }"
+          :style="{ color: dataInputs.textColor, backgroundColor: dataInputs.bgColor, fontSize: `${dataInputs.size}rem`, textAlign: dataInputs.textAlign, fontWeight: dataInputs.fontWeight, fontStyle: dataInputs.fontStyle, fontFamily: dataInputs.fontFamily, letterSpacing: `${dataInputs.letterSpacing}px` }"
           v-model.trim="dataInputs.text" @focus="handleFocus" @blur="handleFocus" />
         <div class="input-errors" v-for="error of v$.dataInputs.text.$errors" :key="error.$uid">
           <div class="error-msg">{{ error.$message }}</div>
@@ -159,6 +167,59 @@ export default {
             <label for="pos3">Right</label>
           </div>
         </div>
+      </div>
+
+      <div class="input-container">
+        <label for="fontFamily">Font Family</label>
+        <select id="fontFamily" v-model="dataInputs.fontFamily">
+          <option value="Arial, sans-serif">Arial (Sans-serif)</option>
+          <option value="Times New Roman, serif">Times New Roman (Serif)</option>
+          <option value="Roboto, sans-serif">Roboto (Sans-serif)</option>
+          <option value="Helvetica, sans-serif">Helvetica (Sans-serif)</option>
+          <option value="Georgia, serif">Georgia (Serif)</option>
+          <option value="Courier New, monospace">Courier New (Monospace)</option>
+          <option value="Verdana, sans-serif">Verdana (Sans-serif)</option>
+          <option value="Arial Black, sans-serif">Arial Black (Sans-serif)</option>
+          <option value="Cabin, sans-serif">Cabin (Sans-serif)</option>
+          <option value="Palatino, serif">Palatino (Serif)</option>
+        </select>
+      </div>
+
+      <div class="input-container">
+        <label>Font Weight</label>
+        <div class="radioBox">
+          <div>
+            <input type="radio" id="normal" value="normal" v-model="dataInputs.fontWeight">
+            <label for="normal">Normal</label>
+          </div>
+          <div>
+            <input type="radio" id="bold" value="bold" v-model="dataInputs.fontWeight">
+            <label for="bold">Bold</label>
+          </div>
+          <div>
+            <input type="radio" id="lighter" value="lighter" v-model="dataInputs.fontWeight">
+            <label for="lighter">Light</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-container">
+        <label>Font Style</label>
+        <div class="radioBox">
+          <div>
+            <input type="radio" id="normal" value="normal" v-model="dataInputs.fontStyle">
+            <label for="normal">Normal</label>
+          </div>
+          <div>
+            <input type="radio" id="italic" value="italic" v-model="dataInputs.fontStyle">
+            <label for="italic">Italic</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-container">
+        <label for="letterSpacing">Letter Spacing</label>
+        <input type="range" id="letterSpacing" min='0' max="2" step="0.1" v-model="dataInputs.letterSpacing" />
       </div>
 
       <button>Edit</button>
@@ -217,6 +278,16 @@ label {
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
+}
+
+#fontFamily {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  text-align: center;
+  border-radius: 4px;
+  letter-spacing: 1px;
+  border: 1px solid #ccc;
 }
 
 .input-errors {
