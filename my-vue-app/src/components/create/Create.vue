@@ -254,6 +254,8 @@ label {
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
+  z-index: 200;
+
 }
 
 #fontFamily {
@@ -282,6 +284,12 @@ textarea.longText {
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
+}
+
+.input-container:has(textarea) {
+  position: sticky;
+  top: -30px;
+  z-index: 2;
 }
 
 input.colorPicker {

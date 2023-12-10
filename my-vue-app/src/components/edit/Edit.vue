@@ -308,6 +308,12 @@ textarea.longText {
   box-sizing: border-box;
 }
 
+.input-container:has(textarea) {
+  position: sticky;
+  top: -30px;
+  z-index: 2;
+}
+
 input.colorPicker {
   width: 100%;
   padding: 10px;
