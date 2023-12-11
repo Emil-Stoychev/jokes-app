@@ -37,7 +37,8 @@
   --max-width: 1920px;
   --bg-color: #424f52;
   --bg-color-sub: #2e373a;
-  --border-main-color: 1.5px solid rgb(11, 199, 11);
+  --color-green: rgb(11, 199, 11);
+  --border-main-color: 1.5px solid var(--color-green);
 
   max-width: var(--max-width);
 }
@@ -46,6 +47,16 @@
   :root {
     color: var(--bg-color);
   }
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-top-left-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+  background: rgb(11, 199, 11);
 }
 
 body {
