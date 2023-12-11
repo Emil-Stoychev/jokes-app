@@ -101,12 +101,12 @@ nav {
     border-bottom: var(--border-main-color);
     max-width: var(--max-width);
     z-index: 100;
-    transition: border-color 0.5s ease;
+    transition: border-color 0.5s ease-in-out;
     background-position: 0 0;
 }
 
 nav.loading {
-    animation: loadingAnimation 6s infinite linear;
+    animation: loadingAnimation 5s infinite linear;
 }
 
 @keyframes loadingAnimation {

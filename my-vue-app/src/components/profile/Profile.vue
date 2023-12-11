@@ -39,10 +39,12 @@ export default {
   },
   methods: {
     async changeSide(name) {
+      if(this.isReqSend) return
+      this.jokes = []
       this.currentSlide = name
       this.skipNumber = 0
       this.stopPagination = false
-      this.isReqSend = false
+      this.isReqSend = true
 
       const userId = this.route?.params?.id ? this.route.params.id : this.authStore.user?._id
 
@@ -56,6 +58,7 @@ export default {
         this.jokes = res
       }
 
+      this.isReqSend = false
       this.skipNumber += 10;
     },
     async loadingMoreJokes() {
@@ -101,7 +104,7 @@ export default {
     async likeToggle(jokeId, option) {
       const res = await this.jokeStore.likeJokeToggle(jokeId, this.jokes)
 
-      if(!this.like) {
+      if (!this.like) {
         this.like = true
 
         setTimeout(() => {
@@ -128,7 +131,6 @@ export default {
       this.deleteToggle = !this.deleteToggle
     },
     async toggleStar(jokeAuthor) {
-      console.log(jokeAuthor);
       await this.authStore.toggleStar(jokeAuthor)
     },
     async deleteAccFn() {
@@ -157,7 +159,7 @@ export default {
       <h2 @click="changeSide('likedJokes')" :class="currentSlide == 'likedJokes' && 'selected'">Liked jokes</h2>
     </div>
 
-    <hr />
+    <hr :class="this.isReqSend && 'loading'" />
 
     <div v-show="this.currentSlide == ''" class="profileDetails">
       <h2 class="detailsHeader">DETAILS INFORMATION</h2>
@@ -198,8 +200,8 @@ export default {
       <div v-for="joke of this.jokes" :key="joke?._id" class="box">
         <div class="author">
           <img v-if="this.currentSlide != 'myJokes'" class="emojie" :src="`/images/${joke.author?.avatar}`" />
-          <svg v-show="this.authStore?.user?._id && this.authStore?.user?._id != joke?.author" @click="toggleStar(joke.author?._id)" class="star"
-            xmlns="http://www.w3.org/2000/svg"
+          <svg v-show="this.authStore?.user?._id && this.authStore?.user?._id != joke?.author"
+            @click="toggleStar(joke.author?._id)" class="star" xmlns="http://www.w3.org/2000/svg"
             :fill="this.authStore.user?.likedStars?.includes(joke.author?._id) ? 'yellow' : 'white'" height="28"
             width="28" viewBox="0 0 576 512">
             <path
@@ -256,6 +258,8 @@ export default {
 hr {
   width: 75%;
   border-radius: 100%;
+  transition: border-color 0.5s ease-in-out;
+  background-position: 0 0;
 }
 
 /* MAIN CONTAINER */
@@ -370,6 +374,36 @@ hr {
 
 .selected {
   border-bottom: var(--border-main-color);
+}
+
+/* MAIN HR LINE IF LOADING DATA */
+
+hr.loading {
+  animation: loadingAnimation 5s infinite linear;
+}
+
+@keyframes loadingAnimation {
+  0% {
+    border-bottom: 2px solid red;
+    background-position: 100% 0;
+  }
+
+  25% {
+    border-bottom: 2px solid yellow;
+  }
+
+  50% {
+    border-bottom: 2px solid green;
+  }
+
+  75% {
+    border-bottom: 2px solid blue;
+  }
+
+  100% {
+    border-bottom: 2px solid red;
+    background-position: 0 0;
+  }
 }
 
 
@@ -672,8 +706,7 @@ div.btns>button svg.liked {
 
 @media screen and (max-width: 350px) {
   .detailsHeaderDiv {
-  width: 95%;
+    width: 95%;
+  }
 }
-}
-
 </style>

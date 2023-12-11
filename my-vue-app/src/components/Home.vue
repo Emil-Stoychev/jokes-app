@@ -62,6 +62,8 @@ export default {
       }
 
       if (option == 'byCreated') {
+        this.authStore.startLoading();
+        this.allJokes = []
         this.skipNumber = 0
         this.stopPagination = false
 
@@ -74,6 +76,7 @@ export default {
 
         this.isReqSend = true
         this.allJokes = await this.jokeStore.getAllJokes(this.skipNumber, this.sortOptions.byCreated) || []
+        this.authStore.stopLoading();
         this.isReqSend = false
         this.skipNumber += 10;
       }
@@ -135,9 +138,11 @@ export default {
   },
   async mounted() {
     if (!this.firstRendering) {
+      this.authStore.startLoading();
       this.allJokes = await this.jokeStore.getAllJokes(this.skipNumber, this.sortOptions.byCreated) || []
       this.firstRendering = true
       this.skipNumber += 10;
+      this.authStore.stopLoading();
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 100);
@@ -149,7 +154,9 @@ export default {
         if (this.isReqSend) return
 
         this.isReqSend = true
+        this.authStore.startLoading();
         const moreJokes = await this.jokeStore.getAllJokes(this.skipNumber, this.sortOptions.byCreated) || []
+        this.authStore.stopLoading();
         this.isReqSend = false
 
         if (moreJokes.length == 0) {
