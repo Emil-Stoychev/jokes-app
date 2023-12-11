@@ -14,8 +14,8 @@ const useJokeStore = defineStore("joke", {
   state: () => ({}),
   getters: {},
   actions: {
-    getAllJokes(skip) {
-      return getAll(skip).then((res) => {
+    getAllJokes(skip, createdAt) {
+      return getAll(skip, createdAt).then((res) => {
         if (!res.message) {
           return res;
         } else {

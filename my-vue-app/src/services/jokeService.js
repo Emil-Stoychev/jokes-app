@@ -2,8 +2,8 @@ let a = window.location.origin.split(`:${window.location.port}`)
 
 const URL = a[0] + ':3030/jokes'
 
-export const getAll = (skip) => {
-    return fetch(`${URL}/${skip}`)
+export const getAll = (skip, createdAt) => {
+    return fetch(`${URL}/${skip}/${createdAt}`)
         .then(res => res.json())
 }
 

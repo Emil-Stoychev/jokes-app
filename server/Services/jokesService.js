@@ -1,12 +1,12 @@
 const { Joke } = require("../Models/Joke");
 const { User } = require("../Models/User");
 
-const getAll = async (skip = 0, limit = 10) => {
+const getAll = async (skip = 0, createdAt, limit = 10) => {
   try {
     return (
       (await Joke.find()
         .populate("author")
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: !!JSON.parse(createdAt) ? -1 : 1 })
         .skip(Number(skip))
         .limit(limit)) || []
     );

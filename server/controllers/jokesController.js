@@ -3,8 +3,8 @@ const { authMiddlewareStrict } = require('../Middlewares/authMiddlewareStrict')
 
 const jokesService = require('../Services/jokesService')
 
-router.get('/:skip', async (req, res) => {
-    res.json(await jokesService.getAll(req.params.skip))
+router.get('/:skip/:createdAt', async (req, res) => {
+    res.json(await jokesService.getAll(req.params.skip, req.params.createdAt))
 })
 
 router.get('/getAllJokesByUser/:userId/:skip', async (req, res) => {

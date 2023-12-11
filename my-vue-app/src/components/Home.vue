@@ -13,7 +13,12 @@ export default {
   data() {
     return {
       allJokes: [],
-      type: false,
+      sortOptions: {
+        byCreated: true,
+        byLikes: false,
+        byLength: false,
+        byRank: false,
+      },
       skipNumber: 0,
       stopPagination: false,
       isReqSend: false,
@@ -34,7 +39,7 @@ export default {
     async likeToggle(jokeId) {
       const res = await this.jokeStore.likeJokeToggle(jokeId, this.allJokes)
 
-      if(!this.like) {
+      if (!this.like) {
         this.like = true
 
         setTimeout(() => {
@@ -50,50 +55,92 @@ export default {
     goToEdit(jokeId) {
       this.$router.push(`/edit/${jokeId}`)
     },
-    sortingBy(option) {
-      if (option == 'likes') {
-        if (this.type) {
-          this.allJokes = this.allJokes.sort((a, b) => a.likes.length - b.likes.length)
-          this.type = !this.type
-        } else {
-          this.allJokes = this.allJokes.sort((a, b) => b.likes.length - a.likes.length)
-          this.type = !this.type
-        }
-      } else if (option == 'created') {
-        if (this.type) {
-          this.allJokes = this.allJokes.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-          this.type = !this.type
-        } else {
-          this.allJokes = this.allJokes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-          this.type = !this.type
-        }
-      } else if (option == 'text') {
-        if (this.type) {
-          this.allJokes = this.allJokes.sort((a, b) => a.text.length - b.text.length)
-          this.type = !this.type
-        } else {
-          this.allJokes = this.allJokes.sort((a, b) => b.text.length - a.text.length)
-          this.type = !this.type
-        }
-      } else if (option == 'rank') {
-        if (this.type) {
-          this.allJokes = this.allJokes.sort((a, b) => a.author.rank - b.author.rank)
-          this.type = !this.type
-        } else {
-          this.allJokes = this.allJokes.sort((a, b) => b.author.rank - a.author.rank)
-          this.type = !this.type
-        }
+    async sortingBy(option) {
+      this.sortOptions = {
+        ...this.sortOptions,
+        [option]: !this.sortOptions[option]
       }
+
+      if (option == 'byCreated') {
+        this.skipNumber = 0
+        this.stopPagination = false
+
+        this.sortOptions = {
+          ...this.sortOptions,
+          byLikes: false,
+          byLength: false,
+          byRank: false,
+        }
+
+        this.isReqSend = true
+        this.allJokes = await this.jokeStore.getAllJokes(this.skipNumber, this.sortOptions.byCreated) || []
+        this.isReqSend = false
+        this.skipNumber += 10;
+      }
+
+      this.sortingFn(option, false)
     },
     async toggleStar(jokeAuthor) {
       await this.authStore.toggleStar(jokeAuthor)
+    },
+    sortingFn(option, must, arr) {
+      if (option == 'byLikes' || must) {
+        if (this.sortOptions['byLikes']) {
+          if (must) {
+            arr = arr.sort((a, b) => a.likes.length - b.likes.length)
+          } else {
+            this.allJokes = this.allJokes.sort((a, b) => a.likes.length - b.likes.length)
+          }
+        } else {
+          if (must) {
+            arr = arr.sort((a, b) => b.likes.length - a.likes.length)
+          } else {
+            this.allJokes = this.allJokes.sort((a, b) => b.likes.length - a.likes.length)
+          }
+        }
+      } else if (option == 'byLength' || must) {
+        if (this.sortOptions['byLength']) {
+          if (must) {
+            arr = arr.sort((a, b) => a.text.length - b.text.length)
+          } else {
+            this.allJokes = this.allJokes.sort((a, b) => a.text.length - b.text.length)
+          }
+        } else {
+          if (must) {
+            arr = arr.sort((a, b) => b.text.length - a.text.length)
+          } else {
+            this.allJokes = this.allJokes.sort((a, b) => b.text.length - a.text.length)
+          }
+        }
+      } else if (option == 'byRank' || must) {
+        if (this.sortOptions['byRank']) {
+          if (must) {
+            arr = arr.sort((a, b) => a.author.rank - b.author.rank)
+          } else {
+            this.allJokes = this.allJokes.sort((a, b) => a.author.rank - b.author.rank)
+          }
+        } else {
+          if (must) {
+            arr = arr.sort((a, b) => b.author.rank - a.author.rank)
+          } else {
+            this.allJokes = this.allJokes.sort((a, b) => b.author.rank - a.author.rank)
+          }
+        }
+      }
+
+      if (must) {
+        return arr
+      }
     }
   },
   async mounted() {
     if (!this.firstRendering) {
-      this.allJokes = await this.jokeStore.getAllJokes(this.skipNumber) || []
+      this.allJokes = await this.jokeStore.getAllJokes(this.skipNumber, this.sortOptions.byCreated) || []
       this.firstRendering = true
       this.skipNumber += 10;
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
     }
 
     window.addEventListener('scroll', async () => {
@@ -102,7 +149,7 @@ export default {
         if (this.isReqSend) return
 
         this.isReqSend = true
-        const moreJokes = await this.jokeStore.getAllJokes(this.skipNumber) || []
+        const moreJokes = await this.jokeStore.getAllJokes(this.skipNumber, this.sortOptions.byCreated) || []
         this.isReqSend = false
 
         if (moreJokes.length == 0) {
@@ -110,7 +157,9 @@ export default {
         }
         this.skipNumber += 10;
 
-        this.allJokes = [...this.allJokes, ...moreJokes]
+        let sortedJokes = this.sortingFn('', true, moreJokes)
+
+        this.allJokes = [...this.allJokes, ...sortedJokes]
       }
     });
   }
@@ -120,10 +169,14 @@ export default {
 
 <template>
   <div class="filteringBtns" v-if="this.allJokes.length > 0">
-    <button @click="sortingBy('created')">BY CREATED</button>
-    <button @click="sortingBy('likes')">BY LIKES</button>
-    <button @click="sortingBy('text')">BY TEXT LENGTH</button>
-    <button @click="sortingBy('rank')">BY RANK</button>
+    <button @click="sortingBy('byCreated')" :style="{ backgroundColor: this.sortOptions.byCreated ? 'green' : 'red' }">BY
+      CREATED</button>
+    <button @click="sortingBy('byLikes')" :style="{ backgroundColor: this.sortOptions.byLikes ? 'green' : 'red' }">BY
+      LIKES</button>
+    <button @click="sortingBy('byLength')" :style="{ backgroundColor: this.sortOptions.byLength ? 'green' : 'red' }">BY
+      LENGTH</button>
+    <button @click="sortingBy('byRank')" :style="{ backgroundColor: this.sortOptions.byRank ? 'green' : 'red' }">BY
+      RANK</button>
   </div>
 
   <div class="container">
@@ -373,5 +426,6 @@ div.filteringBtns>button:hover {
   .container {
     padding: 1rem 0.2rem;
   }
-}</style>
+}
+</style>
 

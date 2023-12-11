@@ -6,7 +6,6 @@ import { ref } from "vue";
 
 const authStore = useAuthStore()
 let isArrowShow = ref(false)
-
 window.addEventListener('scroll', async () => {
   const scrollY = window.scrollY || window.pageYOffset;
 
