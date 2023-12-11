@@ -147,7 +147,6 @@ const editJoke = async (container, jokeId, userId) => {
 const deleteJokesByAuthorId = async (author) => {
   try {
     let deletedJoke = await Joke.deleteMany({ author });
-    await removeOneJokeCountToUser(author, "ownJokes", 0);
 
     return deletedJoke;
   } catch (error) {

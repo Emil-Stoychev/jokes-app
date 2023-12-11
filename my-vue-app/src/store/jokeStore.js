@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { showError } from "../globalError/Snackbar.vue";
 import {
   createJoke,
   getAll,
@@ -16,10 +17,9 @@ const useJokeStore = defineStore("joke", {
   actions: {
     getAllJokes(skip, createdAt) {
       return getAll(skip, createdAt).then((res) => {
-        if (!res.message) {
+        if (!res?.message) {
           return res;
         } else {
-          console.log(res);
           return [];
         }
       });
@@ -29,25 +29,32 @@ const useJokeStore = defineStore("joke", {
         jokeId,
         localStorage.getItem("sessionStorage")
       ).then((res) => {
+        if(res?.message) {
+          showError(res.message)
+        }
         return res;
       });
     },
     getAllJokesByUser(userId, skip) {
       return allJokesByUser(userId, skip).then((res) => {
-        if (!res.message) {
+        if (!res?.message) {
           return res;
         } else {
-          console.log(res);
+          if(res?.message) {
+            showError(res.message)
+          }
           return [];
         }
       });
     },
     getAllLikedJokesByUser(userId, skip) {
       return allLikedJokesByUser(userId, skip).then((res) => {
-        if (!res.message) {
+        if (!res?.message) {
           return res;
         } else {
-          console.log(res);
+          if(res?.message) {
+            showError(res.message)
+          }
           return [];
         }
       });
@@ -58,12 +65,15 @@ const useJokeStore = defineStore("joke", {
         localStorage.getItem("sessionStorage")
       ).then((res) => {
         try {
-          if (!res.message) {
+          if (!res?.message) {
+            showError("Joke was created!");
             return res;
           } else {
+            showError(res?.message);
             return { message: "" };
           }
         } catch (error) {
+          showError(error || res?.message);
           return { message: "" };
         }
       });
@@ -72,12 +82,15 @@ const useJokeStore = defineStore("joke", {
       return deleteJoke(jokeId, localStorage.getItem("sessionStorage")).then(
         (res) => {
           try {
-            if (!res.message) {
+            if (!res?.message) {
+              showError("Joke was deleted!");
               return allJokes.filter((x) => x?._id != jokeId);
             } else {
+              showError(res?.message)
               return { message: "" };
             }
           } catch (error) {
+            showError(error || res?.message)
             return { message: "" };
           }
         }
@@ -87,7 +100,7 @@ const useJokeStore = defineStore("joke", {
       return likeJoke(jokeId, localStorage.getItem("sessionStorage")).then(
         (res) => {
           try {
-            if (!res.message) {
+            if (!res?.message) {
               return allJokes.map((x) => {
                 if (x?._id == jokeId) {
                   x.likes = res.likes;
@@ -111,12 +124,15 @@ const useJokeStore = defineStore("joke", {
         localStorage.getItem("sessionStorage")
       ).then((res) => {
         try {
-          if (!res.message) {
+          if (!res?.message) {
+            showError('Joke was edited!')
             return res;
           } else {
+            showError(res?.message)
             return { message: "" };
           }
         } catch (error) {
+          showError(error || res?.message)
           return { message: "" };
         }
       });

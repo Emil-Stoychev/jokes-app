@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { showError } from "../globalError/Snackbar.vue";
 import {
   getUserByToken,
   login,
@@ -21,7 +22,7 @@ const useAuthStore = defineStore("auth", {
       if (token) {
         return getUserByToken(token).then((res) => {
           try {
-            if (!res.message) {
+            if (!res?.message) {
               this.user = res;
               this.isAuthenticated = true;
               return res;
@@ -29,10 +30,10 @@ const useAuthStore = defineStore("auth", {
               this.user = {};
               this.isAuthenticated = false;
               localStorage.removeItem("sessionStorage");
-              console.log(res);
+              showError(res?.message)
             }
           } catch (error) {
-            console.log(error);
+            showError(error || res?.message)
           }
         });
       } else {
@@ -44,7 +45,8 @@ const useAuthStore = defineStore("auth", {
     loginUser(dataInputs) {
       return login(dataInputs).then((res) => {
         try {
-          if (!res.message) {
+          if (!res?.message) {
+            showError(res?.username, 'welcome')
             this.user = res;
             this.isAuthenticated = true;
             localStorage.setItem("sessionStorage", res?.token);
@@ -53,13 +55,14 @@ const useAuthStore = defineStore("auth", {
             this.user = {};
             this.isAuthenticated = false;
             localStorage.removeItem("sessionStorage");
+            showError(res?.message)
             return { message: "" };
           }
         } catch (error) {
           this.user = {};
           this.isAuthenticated = false;
           localStorage.removeItem("sessionStorage");
-          console.log(error);
+          showError(error || res?.message)
           return { message: "" };
         }
       });
@@ -67,13 +70,15 @@ const useAuthStore = defineStore("auth", {
     registerUser(dataInputs) {
       return register(dataInputs).then((res) => {
         try {
-          if (!res.message) {
+          if (!res?.message) {
+            showError('Successfully registered!')
             return res;
           } else {
+            showError(res?.message)
             return { message: "" };
           }
         } catch (error) {
-          console.log(error);
+          showError(error || res?.message)
           return { message: "" };
         }
       });
@@ -84,16 +89,18 @@ const useAuthStore = defineStore("auth", {
         localStorage.getItem("sessionStorage")
       ).then((res) => {
         try {
-          if (!res.message) {
+          if (!res?.message) {
             this.user = res;
             this.isAuthenticated = true;
             localStorage.setItem("sessionStorage", res?.token);
+            showError('Successfully edited!')
             return res;
           } else {
+            showError(res?.message)
             return { message: "" };
           }
         } catch (error) {
-          console.log(error);
+          showError(error || res?.message)
           return { message: "" };
         }
       });
@@ -110,8 +117,10 @@ const useAuthStore = defineStore("auth", {
             this.user = {};
             this.isAuthenticated = false;
             localStorage.removeItem("sessionStorage");
+            showError('User was deleted!')
             return res?.ok;
           } catch (error) {
+            showError(error || res?.message)
             return res?.ok
           }
         }
@@ -123,7 +132,7 @@ const useAuthStore = defineStore("auth", {
         localStorage.getItem("sessionStorage")
       ).then((res) => {
         try {
-          if (!res.message) {
+          if (!res?.message) {
             this.user = res;
             return res;
           } else {
