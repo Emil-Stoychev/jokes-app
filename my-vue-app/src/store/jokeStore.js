@@ -12,7 +12,8 @@ import {
 } from "../services/jokeService";
 
 const useJokeStore = defineStore("joke", {
-  state: () => ({}),
+  state: () => ({
+  }),
   getters: {},
   actions: {
     getAllJokes(skip, createdAt) {
@@ -109,9 +110,11 @@ const useJokeStore = defineStore("joke", {
                 return x;
               });
             } else {
+              showError(res?.message)
               return { message: "" };
             }
           } catch (error) {
+            showError(error || res?.message)
             return { message: "" };
           }
         }

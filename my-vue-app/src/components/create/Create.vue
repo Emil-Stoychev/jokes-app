@@ -2,11 +2,14 @@
 import useJokeStore from '../../store/jokeStore.js'
 import { useVuelidate } from '@vuelidate/core'
 import { required, minLength } from '@vuelidate/validators'
+import { inject } from 'vue';
 
 export default {
   setup() {
     const jokeStore = useJokeStore()
-    return { jokeStore, v$: useVuelidate() }
+    const socket = inject('socket')
+
+    return { jokeStore, v$: useVuelidate(), socket }
   },
   data() {
     return {
@@ -61,6 +64,9 @@ export default {
           this.currentEmojie = this.emojies[4]
         } else {
           this.currentEmojie = this.emojies[5]
+          this.socket.emit("onCreateNewJoke", {
+            createdJoke,
+          })
           this.$router.push('/')
         }
       } else {

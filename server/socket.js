@@ -16,6 +16,10 @@ module.exports = (server) => {
     users.push(socket.id);
     console.log("USERS: ", users);
 
+    socket.on("onCreateNewJoke", (data) => {
+      socket.broadcast.emit("afterCreateNewJoke", data);
+    });
+
     socket.on("disconnect", () => {
       users = users.filter((x) => x != socket.id);
       console.log("🔥: A user disconnected");

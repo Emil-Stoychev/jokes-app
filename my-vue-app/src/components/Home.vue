@@ -1,14 +1,25 @@
 <script>
 import useJokeStore from '../store/jokeStore'
 import useAuthStore from '../store/authStore'
+import html2canvas from 'html2canvas';
 import { format } from 'timeago.js';
+import { inject, ref } from 'vue';
 
 export default {
   setup() {
     const jokeStore = useJokeStore()
     const authStore = useAuthStore()
+    const socket = inject('socket')
 
-    return { jokeStore, authStore, format }
+    let newCreatedJokeNot = ref(false)
+
+    socket?.on('afterCreateNewJoke', () => {
+      if (!newCreatedJokeNot.value) {
+        newCreatedJokeNot.value = true
+      }
+    })
+
+    return { jokeStore, authStore, format, newCreatedJokeNot }
   },
   data() {
     return {
@@ -24,6 +35,7 @@ export default {
       isReqSend: false,
       firstRendering: false,
       like: false,
+      hideClass: false
     }
   },
   methods: {
@@ -134,8 +146,49 @@ export default {
       if (must) {
         return arr
       }
+    },
+    async showLatestJokes() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      this.hideLatestJokes()
+      this.authStore.startLoading();
+      this.allJokes = []
+      this.skipNumber = 0
+      this.stopPagination = false
+
+      this.sortOptions = {
+        ...this.sortOptions,
+        byLikes: false,
+        byLength: false,
+        byRank: false,
+      }
+
+      this.allJokes = await this.jokeStore.getAllJokes(this.skipNumber, this.sortOptions.byCreated) || []
+      this.firstRendering = true
+      this.skipNumber += 10;
+      this.authStore.stopLoading();
+    },
+    hideLatestJokes() {
+      if (!this.hideClass) {
+        this.hideClass = true
+
+        setTimeout(() => {
+          this.newCreatedJokeNot = false
+          this.hideClass = false
+        }, 1000);
+      }
+    },
+    downloadAsImage() {
+      const textCnt = document.querySelector('.textCnt');
+
+      html2canvas(textCnt).then(canvas => {
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL();
+        link.download = 'downloaded-image.png';
+        link.click();
+      })
     }
   },
+
   async mounted() {
     if (!this.firstRendering) {
       this.authStore.startLoading();
@@ -175,6 +228,15 @@ export default {
 </script>
 
 <template>
+  <div v-show="this.newCreatedJokeNot" :class="`latestContentMsg ${this.hideClass && 'hideClassForLatestMsg'}`">
+    <h4>Explore the latest content.</h4>
+    <div>
+      <button @click="hideLatestJokes">Hide</button>
+      <button @click="showLatestJokes">Show</button>
+    </div>
+  </div>
+
+
   <div class="filteringBtns" v-if="this.allJokes.length > 0">
     <button @click="sortingBy('byCreated')" :style="{ backgroundColor: this.sortOptions.byCreated ? 'green' : 'red' }">BY
       CREATED</button>
@@ -205,11 +267,12 @@ export default {
         </div>
       </div>
 
+      <span class="downloadSpan" @click="downloadAsImage"><svg fill="white" xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 512 512"><path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V274.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7V32zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V416c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352H64zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"/></svg></span>
+
       <div class="textCnt" :style="{ backgroundColor: joke.bgColor }">
         <p
           :style="{ color: joke.textColor, fontSize: `${joke.size}rem`, textAlign: joke.textAlign, fontWeight: joke.fontWeight, fontStyle: joke.fontStyle, fontFamily: joke.fontFamily, letterSpacing: `${joke.letterSpacing}px` }">
           {{ joke.text }}</p>
-
       </div>
 
       <div class="btns">
@@ -244,6 +307,99 @@ export default {
 
 
 <style scoped>
+/* LATEST CONTENT DIV MESSAGE */
+
+div.latestContentMsg {
+  position: fixed;
+  top: 3rem;
+  width: 500px;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-color);
+  user-select: none;
+  height: 60px;
+  border-radius: 1rem;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 300ms ease-in-out;
+  animation: showLatestContentAnim 1s ease-out forwards;
+  opacity: 0.9;
+}
+
+@keyframes showLatestContentAnim {
+  from {
+    top: -10rem;
+  }
+
+  to {
+    top: 3rem;
+  }
+}
+
+div.hideClassForLatestMsg {
+  transition: all 300ms ease-in-out;
+  animation: hideLatestContentAnim 1s ease-out forwards;
+}
+
+@keyframes hideLatestContentAnim {
+  from {
+    top: 3rem;
+  }
+
+  to {
+    top: -10rem;
+  }
+}
+
+
+div.latestContentMsg>h4 {
+  padding: 0 0.5rem;
+  letter-spacing: 2px;
+  width: 100%;
+}
+
+div.latestContentMsg>div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 70%;
+}
+
+div.latestContentMsg>div>button {
+  padding: 0.5rem 0.8rem;
+  height: 40px;
+  letter-spacing: 1px;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 0.6rem;
+  font-size: 14px;
+  cursor: pointer;
+  margin: 0 0.3rem;
+}
+
+div.latestContentMsg>div>button:hover {
+  background-color: #45a049;
+}
+
+@media (max-width: 530px) {
+  div.latestContentMsg {
+    width: 95%;
+    max-width: 95%;
+  }
+
+  .latestContentMsg>h4 {
+    font-size: 14px;
+  }
+
+  div.latestContentMsg>div>button {
+    font-size: 12px;
+    padding: 0.4rem 0.6rem;
+  }
+}
+
+/* CONTAINER */
 .container {
   display: flex;
   flex-wrap: wrap;
@@ -330,6 +486,14 @@ export default {
 .textCnt {
   overflow-y: auto;
   height: 70%;
+}
+
+/* DOWNLOAD SPAN */
+
+span.downloadSpan {
+  position: absolute;
+  bottom: 4.2rem;
+  right: 1rem;
 }
 
 .textCnt>p {

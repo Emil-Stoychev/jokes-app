@@ -2,8 +2,10 @@
 import Navigation from "./components/core/navigation.vue";
 import MyFooter from "./components/core/myfooter.vue";
 import useAuthStore from "./store/authStore";
-import { ref } from "vue";
+import { onMounted, provide, ref } from "vue";
+import { io } from 'socket.io-client'
 
+const socket = io(`http://${window.location.hostname}:3030`);
 const authStore = useAuthStore()
 let isArrowShow = ref(false)
 window.addEventListener('scroll', async () => {
@@ -19,6 +21,13 @@ window.addEventListener('scroll', async () => {
 function goUp() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+onMounted(() => {
+  socket.on('connect', () => console.log());
+
+  provide('socket', socket);
+})
+
 </script>
 
 <template>

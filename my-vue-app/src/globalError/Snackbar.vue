@@ -7,6 +7,7 @@ import AwesomeSnackbar from 'awesome-snackbar';
 import router from '../router'
 let inst = null
 
+
 const showError = (errorMessage, type = 'error') => {
     if (errorMessage === 'Invalid token!') {
         inst = new AwesomeSnackbar(`${errorMessage} Please login!`, {
@@ -25,6 +26,7 @@ const showError = (errorMessage, type = 'error') => {
         });
         return
     }
+
     inst = new AwesomeSnackbar(errorMessage, {
         afterHide: () => inst = null
     });

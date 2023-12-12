@@ -9,9 +9,9 @@ import Snackbar from './globalError/Snackbar.vue'
 const app = createApp(App)
 const pinia = createPinia()
 
-app.component('Snackbar', Snackbar);
 app.use(pinia)
 app.use(router)
 app.use(VueWriter)
+app.component('Snackbar', Snackbar);
 
 app.mount('#app')
