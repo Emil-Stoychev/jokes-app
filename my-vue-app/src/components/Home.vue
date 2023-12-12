@@ -4,6 +4,7 @@ import useAuthStore from '../store/authStore'
 import html2canvas from 'html2canvas';
 import { format } from 'timeago.js';
 import { inject, ref } from 'vue';
+import { showError } from '../globalError/Snackbar.vue';
 
 export default {
   setup() {
@@ -191,6 +192,7 @@ export default {
       link.href = canvas.toDataURL();
       link.download = `${joke?._id}.png`;
       link.click();
+      showError('Thank you for downloading!')
     }
   },
 
