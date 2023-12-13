@@ -505,6 +505,7 @@ span.downloadSpan {
   position: absolute;
   bottom: 4.2rem;
   right: 1rem;
+  cursor: pointer;
 }
 
 .textCnt>p {

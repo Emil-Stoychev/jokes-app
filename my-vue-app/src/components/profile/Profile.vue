@@ -1,11 +1,13 @@
 <script>
 import useAuthStore from '../../store/authStore';
 import useJokeStore from '../../store/jokeStore';
+import html2canvas from 'html2canvas';
 import { useVuelidate } from '@vuelidate/core'
 import { sameAs } from '@vuelidate/validators'
 import { onMounted } from 'vue'
 import { format } from 'timeago.js'
 import { useRoute } from 'vue-router';
+import { showError } from '../../globalError/Snackbar.vue';
 
 export default {
   setup() {
@@ -39,7 +41,7 @@ export default {
   },
   methods: {
     async changeSide(name) {
-      if(this.isReqSend) return
+      if (this.isReqSend) return
       this.jokes = []
       this.currentSlide = name
       this.skipNumber = 0
@@ -139,6 +141,22 @@ export default {
         await this.authStore.deleteAcc()
         this.$router.push('/register')
       }
+    },
+    async downloadAsImage(joke) {
+      const currentDiv = event.currentTarget.closest('.box');
+      const textCnt = currentDiv.querySelector('.textCnt');
+      const scrollY = textCnt.scrollTop;
+      textCnt.style.height = `${textCnt.scrollHeight}px`;
+      textCnt.scrollTo(0, 0);
+      const canvas = await html2canvas(textCnt);
+      textCnt.style.height = '';
+      textCnt.scrollTo(0, scrollY);
+
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL();
+      link.download = `${joke?._id}.png`;
+      link.click();
+      showError('Thank you for downloading!')
     }
   },
 };
@@ -214,6 +232,12 @@ export default {
           </div>
         </div>
 
+        <span class="downloadSpan" @click="downloadAsImage(joke)"><svg fill="white" xmlns="http://www.w3.org/2000/svg"
+            height="24" width="24" viewBox="0 0 512 512">
+            <path
+              d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V274.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7V32zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V416c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352H64zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48z" />
+          </svg></span>
+
         <div class="textCnt" :style="{ backgroundColor: joke.bgColor }">
           <p
             :style="{ color: joke.textColor, fontSize: `${joke.size}rem`, textAlign: joke.textAlign, fontWeight: joke.fontWeight, fontStyle: joke.fontStyle, fontFamily: joke.fontFamily, letterSpacing: `${joke.letterSpacing}px` }">
@@ -255,6 +279,16 @@ export default {
 </template>
 
 <style scoped>
+/* DOWNLOAD SPAN */
+
+span.downloadSpan {
+  position: absolute;
+  bottom: 4.2rem;
+  right: 1rem;
+  cursor: pointer;
+}
+
+/* HR SEPARATOR */
 hr {
   width: 75%;
   border-radius: 100%;
