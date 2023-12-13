@@ -257,6 +257,8 @@ export default {
 
   <div class="container">
 
+    <h2 v-if="!this.allJokes.length && !this.isReqSend">No jokes yet.</h2>
+
     <div v-for="joke of this.allJokes" :key="joke?._id" class="box">
       <div class="author">
         <img class="emojie" :src="`/images/${joke.author?.avatar}`" />

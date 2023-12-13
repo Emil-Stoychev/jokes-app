@@ -215,6 +215,8 @@ export default {
 
     <div v-show="this.currentSlide != ''" class="posts" @scroll="loadingMoreJokes" ref="scrollContainer">
 
+      <h2 v-if="!this.jokes.length && !this.isReqSend">{{ `No ${this.currentSlide === 'likedJokes' ? 'liked' : ''} jokes yet.` }}</h2>
+
       <div v-for="joke of this.jokes" :key="joke?._id" class="box">
         <div class="author">
           <img v-if="this.currentSlide != 'myJokes'" class="emojie" :src="`/images/${joke.author?.avatar}`" />
